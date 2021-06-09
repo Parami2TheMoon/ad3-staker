@@ -8,7 +8,7 @@ import '@openzeppelin/contracts/math/Math.sol';
 library RewardCalculator {
     function computeRewardAmount(
         uint256 totalRewardUnclaimed,
-        uint160 totalSecondsClaimedX128,
+        uint256 totalSecondsClaimedX128,
         uint256 startTime,
         uint256 endTime,
         uint128 liquidity,

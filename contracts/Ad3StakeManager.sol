@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: UNLICENSED
-
 pragma solidity ^0.7.6;
+pragma abicoder v2;
 
 import "@openzeppelin/contracts/math/Math.sol";
 import "@openzeppelin/contracts/math/SafeMath.sol";
@@ -22,9 +22,7 @@ import './libraries/IncentiveId.sol';
 import "./libraries/RewardCalculator.sol";
 
 
-contract StakeManager is
-    IAd3StakeManager,
-    ReentrancyGuard,
+contract Ad3StakeManager is IAd3StakeManager, ReentrancyGuard
 {
     using SafeMath for uint256;
     using SafeMath for uint160;
@@ -47,9 +45,9 @@ contract StakeManager is
         IncentiveKey key;
     }
 
-    mapping(address => mapping(address => uint256)) _rewards;
     mapping(bytes32 => mapping(uint256 => Stake)) _stakes;
-    mapping(bytes32 => Incentive) public override incentives;
+    mapping(address => mapping(address => uint256)) public override _rewards;
+    mapping(bytes32 => Incentive) incentives;
 
     address public owner;
     modifier onlyOwner {
@@ -65,6 +63,18 @@ contract StakeManager is
         owner = msg.sender;
         factory = IUniswapV3Factory(_factory);
         nonfungiblePositionManager = INonfungiblePositionManager(_nonfungiblePositionManager);
+    }
+
+    function stakes(bytes32 incentiveId, uint256 tokenId)
+        public
+        view
+        override
+        returns (address stakeOwner, uint160 secondsPerLiquidityInsideInitialX128, uint128 liquidity)
+    {
+        Stake storage stake = _stakes[incentiveId][tokenId];
+        stakeOwner = stake.owner;
+        secondsPerLiquidityInsideInitialX128 = stake.secondsPerLiquidityInsideInitialX128;
+        liquidity = stake.liquidity;
     }
 
     function createIncentive(
@@ -92,6 +102,7 @@ contract StakeManager is
 
         incentives[incentiveId] = Incentive({
             totalRewardUnclaimed: reward,
+            totalSecondsClaimedX128: 0,
             numberOfStakes: 0,
             minPrice: minPrice,
             maxPrice: maxPrice,
@@ -117,9 +128,13 @@ contract StakeManager is
         return incentiveId;
     }
 
-    function cancelIncentive(bytes32 incentiveId, address recipient) external override onlyOwner
+    function cancelIncentive(bytes32 incentiveId, address recipient)
+        external
+        override
+        onlyOwner
     {
-        Incentive memroy incentive = incentives[incentiveId];
+        Incentive storage incentive = incentives[incentiveId];
+        IncentiveKey storage key = incentive.key;
         uint256 rewardUnclaimed = incentive.totalRewardUnclaimed;
         require(rewardUnclaimed > 0, 'no refund available');
         require(
@@ -132,7 +147,7 @@ contract StakeManager is
         );
 
         // if any unclaimed rewards remain, and we're past the claim deadline, issue a refund
-        incentives[incentiveId].totalRewardUnclaimed = 0
+        incentives[incentiveId].totalRewardUnclaimed = 0;
         TransferHelper.safeTransfer(
             address(key.rewardToken),
             recipient,
@@ -144,7 +159,7 @@ contract StakeManager is
 
     /// @inheritdoc IERC721Receiver
     function onERC721Received(
-        address operator,
+        address,
         address from,
         uint256 tokenId,
         bytes calldata data
@@ -174,8 +189,8 @@ contract StakeManager is
     }
 
     function _stakeToken(bytes32 incentiveId, uint256 tokenId, address from) private {
-        Incentive memory incentive = incentives[incentiveId];
-        IcentiveKey memory key = incentive.key;
+        Incentive storage incentive = incentives[incentiveId];
+        IncentiveKey storage key = incentive.key;
 
         require(block.timestamp >= key.startTime, 'incentive not started');
         require(block.timestamp <= key.endTime, 'incentive has ended');
@@ -200,7 +215,7 @@ contract StakeManager is
         (, uint160 secondsPerLiquidityInsideX128, ) =
             pool.snapshotCumulativesInside(tickLower, tickUpper);
 
-        _stakes[tokenId][incentiveId] = Stake({
+        _stakes[incentiveId][tokenId] = Stake({
                 secondsPerLiquidityInsideInitialX128: secondsPerLiquidityInsideX128,
                 liquidity: liquidity,
                 owner: from
@@ -209,29 +224,18 @@ contract StakeManager is
         emit TokenStaked(incentiveId, tokenId, liquidity);
     }
 
-    function getStakeInfo(bytes32 incentiveId, uint256 tokenId)
-        external
-        override
-        views
-        returns (
+    function updateReward(bytes32 incentiveId, uint256 tokenId)
+        public
+        nonReentrant
+    {
+        (
             address stakeOwner,
             uint160 secondsPerLiquidityInsideInitialX128,
             uint128 liquidity
-        )
-    {
-         Stake memory _stake = _stakes[tokenId][incentiveId];
-         secondsPerLiquidityInsideInitialX128 = _stake.secondsPerLiquidityInsideInitialX128;
-         liquidity = _stake.liquidity;
-         stakeOwner = _stake.owner;
-    }
+        ) = stakes(incentiveId, tokenId);
 
-    function updateReward(bytes32 incentiveId, uint256 tokenId)
-        external
-        override
-    {
-        address stakeOwner = _stakes[incentiveId][tokenId].owner;
         Incentive storage incentive = incentives[incentiveId];
-        IncentiveKey memory key = incentive.key;
+        IncentiveKey storage key = incentive.key;
 
         if (incentive.totalRewardUnclaimed > 0) {
             (, , , , , int24 tickLower, int24 tickUpper, , , , , ) =
@@ -240,7 +244,7 @@ contract StakeManager is
             (, uint160 secondsPerLiquidityInsideX128, ) =
                 key.pool.snapshotCumulativesInside(tickLower, tickUpper);
             (uint256 reward, uint160 secondsInsideX128) =
-                RewardMath.computeRewardAmount(
+                RewardCalculator.computeRewardAmount(
                     incentive.totalRewardUnclaimed,
                     incentive.totalSecondsClaimedX128,
                     key.startTime,
@@ -261,9 +265,9 @@ contract StakeManager is
     {
         (
             address stakeOwner,
-            uint160 secondsPerLiquidityInsideInitialX128,
+            ,
             uint128 liquidity
-        ) = getStakeInfo(incentiveId, tokenId);
+        ) = stakes(incentiveId, tokenId);
         require(stakeOwner == msg.sender, 'only owner can withdraw token');
         require(liquidity > 0, 'stake does not exist');
 
@@ -291,11 +295,17 @@ contract StakeManager is
     function getRewardAmount(bytes32 incentiveId, uint256 tokenId)
         external
         override
-        views
+        view
         returns (uint256 reward)
     {
-        Incentive memroy incentive = incentives[incentiveId];
-        IncentiveKey key = incentive.key;
+        (
+            ,
+            uint160 secondsPerLiquidityInsideInitialX128,
+            uint128 liquidity
+        ) = stakes(incentiveId, tokenId);
+
+        Incentive storage incentive = incentives[incentiveId];
+        IncentiveKey storage key = incentive.key;
 
         if (incentive.totalRewardUnclaimed > 0) {
             (, , , , , int24 tickLower, int24 tickUpper, , , , , ) =
@@ -304,7 +314,7 @@ contract StakeManager is
             (, uint160 secondsPerLiquidityInsideX128, ) =
                 key.pool.snapshotCumulativesInside(tickLower, tickUpper);
             (reward, ) =
-                RewardMath.computeRewardAmount(
+                RewardCalculator.computeRewardAmount(
                     incentive.totalRewardUnclaimed,
                     incentive.totalSecondsClaimedX128,
                     key.startTime,
@@ -313,6 +323,7 @@ contract StakeManager is
                     secondsPerLiquidityInsideInitialX128,
                     secondsPerLiquidityInsideX128
                 );
+        }
     }
 
     function claimReward(address rewardToken, address recipient)
@@ -320,8 +331,8 @@ contract StakeManager is
         override
         nonReentrant
     {
-        uint256 reward = rewards[rewardToken][msg.sender];
-        rewards[rewardToken][msg.sender] = 0;
+        uint256 reward = _rewards[rewardToken][msg.sender];
+        _rewards[rewardToken][msg.sender] = 0;
         TransferHelper.safeTransfer(rewardToken, recipient, reward);
 
         emit RewardClaimed(rewardToken, recipient, reward);

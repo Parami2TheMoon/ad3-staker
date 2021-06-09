@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: UNLICENSED
-
 pragma solidity ^0.7.6;
+pragma abicoder v2;
 
 import '@openzeppelin/contracts/token/ERC721/IERC721Receiver.sol';
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
@@ -10,7 +10,7 @@ import '@uniswap/v3-core/contracts/interfaces/IUniswapV3Pool.sol';
 
 import '@uniswap/v3-periphery/contracts/interfaces/INonfungiblePositionManager.sol';
 
-contract IAd3StakeManager is IERC721Receiver {
+interface IAd3StakeManager is IERC721Receiver {
 
     struct IncentiveKey {
         IERC20 rewardToken;
@@ -26,18 +26,11 @@ contract IAd3StakeManager is IERC721Receiver {
         view
         returns (INonfungiblePositionManager);
 
-    function incentives(bytes32 incentiveId)
+    function stakes(bytes32 incentiveId, uint256 tokenId)
         external
         view
         returns (
-            uint256 totalRewardUnclaimed,
-            uint256 numberOfStakes
-        );
-
-    function _stakes(bytes32 incentiveId, uint256 tokenId)
-        external
-        view
-        returns (
+            address stakeOwner,
             uint160 secondsPerLiquidityInsideInitialX128,
             uint128 liquidity
         );
@@ -47,22 +40,24 @@ contract IAd3StakeManager is IERC721Receiver {
         view
         returns (uint256 rewardsOwed);
 
-    function createIncentive(bytes32 incentiveId) external;
+    function createIncentive(
+        IncentiveKey memory key,
+        uint256 reward,
+        uint256 minPrice,
+        uint256 maxPrice
+    ) external returns (bytes32);
 
     function cancelIncentive(bytes32 incentiveId, address recipient) external;
 
-    function withdrawToken(bytes32 incentiveId, uint256 tokenId, address to) external;
-
     function stakeToken(bytes32 incentiveId, uint256 tokenId) external;
+
+    function withdrawToken(bytes32 incentiveId, uint256 tokenId, address to) external;
 
     function unstakeToken(bytes32 incentiveId, uint256 tokenId) external;
 
     function claimReward(address rewardToken, address recipient) external;
 
-    function getRewardAmount(bytes32 incentiveId, uint256 tokenId)
-        external
-        views
-        returns (uint256 reward);
+    function getRewardAmount(bytes32 incentiveId, uint256 tokenId) external view returns (uint256);
 
     event IncentiveCreated(
         IERC20 indexed rewardToken,
