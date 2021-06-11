@@ -1,17 +1,17 @@
 import { MockProvider } from 'ethereum-waffle';
-import { Wallet } from 'ether';
+import { Wallet } from 'ethers';
 
-export const WALLET_USER_INDEXS = {
+export const WALLET_USER_INDEXES = {
     WETH_OWNER: 1,
-    TOKEN_OWNER: 2,
+    TOKENS_OWNER: 2,
     UNISWAP_ROOT: 3,
     STAKER_DEPLOYER: 4,
     LP_USER_0: 5,
     LP_USER_1: 6,
     LP_USER_2: 7,
-    TRADE_USER_0: 8,
-    TRADE_USER_1: 9,
-    TRADE_USER_2: 10,
+    TRADER_USER_0: 8,
+    TRADER_USER_1: 9,
+    TRADER_USER_2: 10,
     INCENTIVE_CREATOR: 11
 }
 
@@ -25,7 +25,7 @@ export class AccountFixture {
     }
 
     wethOwner() {
-        return this._getAccount(WALLET_USER_INDEXS.WETH_OWNER);
+        return this._getAccount(WALLET_USER_INDEXES.WETH_OWNER);
     }
 
     tokensOwner() {
@@ -73,7 +73,7 @@ export class AccountFixture {
     }
 
     private _getAccount(idx: number): Wallet {
-        if (!index) {
+        if (!idx) {
             throw new Error(`Invalid index: ${idx}`);
         }
         const account = this.wallets[idx];
