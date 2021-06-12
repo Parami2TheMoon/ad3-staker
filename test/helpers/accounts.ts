@@ -2,17 +2,17 @@ import { MockProvider } from 'ethereum-waffle';
 import { Wallet } from 'ethers';
 
 export const WALLET_USER_INDEXES = {
-    WETH_OWNER: 1,
-    TOKENS_OWNER: 2,
-    UNISWAP_ROOT: 3,
-    STAKER_DEPLOYER: 4,
-    LP_USER_0: 5,
-    LP_USER_1: 6,
-    LP_USER_2: 7,
-    TRADER_USER_0: 8,
-    TRADER_USER_1: 9,
-    TRADER_USER_2: 10,
-    INCENTIVE_CREATOR: 11
+    WETH_OWNER: 0,
+    TOKENS_OWNER: 1,
+    UNISWAP_ROOT: 2,
+    STAKER_DEPLOYER: 3,
+    LP_USER_0: 4,
+    LP_USER_1: 5,
+    LP_USER_2: 6,
+    TRADER_USER_0: 7,
+    TRADER_USER_1: 8,
+    TRADER_USER_2: 9,
+    INCENTIVE_CREATOR: 10
 }
 
 export class AccountFixture {
@@ -73,7 +73,7 @@ export class AccountFixture {
     }
 
     private _getAccount(idx: number): Wallet {
-        if (!idx) {
+        if (idx < 0 || idx === undefined || idx === null) {
             throw new Error(`Invalid index: ${idx}`);
         }
         const account = this.wallets[idx];

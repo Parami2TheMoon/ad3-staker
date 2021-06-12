@@ -35,4 +35,4 @@ describe("unittest/Deployment", () => {
         const owner = await staker.owner();
         expect(owner).to.equal(wallets[0].address, `owner address does not match ${wallets[0].address} != ${owner}`);
     })
-})
+});
