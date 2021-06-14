@@ -31,7 +31,7 @@ contract Ad3StakeManager is IAd3StakeManager, ReentrancyGuard
 
     mapping(uint256 => Deposit) _deposits;
     mapping(bytes32 => mapping(uint256 => Stake)) _stakes;
-    mapping(address => mapping(address => uint256)) public override _rewards;
+    mapping(address => mapping(address => uint256)) _rewards;
     mapping(bytes32 => Incentive) public incentives;
 
     address public owner;
@@ -71,6 +71,15 @@ contract Ad3StakeManager is IAd3StakeManager, ReentrancyGuard
         Deposit memory deposit = _deposits[tokenId];
         recipient = deposit.recipient;
         numberOfStakes = deposit.numberOfStakes;
+    }
+
+    function rewards(address rewardToken, address recipient)
+        public
+        view
+        override
+        returns (uint256 reward)
+    {
+        reward = _rewards[rewardToken][recipient];
     }
 
     function createIncentive(
@@ -305,7 +314,7 @@ contract Ad3StakeManager is IAd3StakeManager, ReentrancyGuard
         external
         override
         view
-        returns (uint256 reward)
+        returns (uint256 reward, uint160 secondsInsideX128)
     {
         bytes32 incentiveId = IncentiveId.compute(key);
         (
@@ -322,7 +331,7 @@ contract Ad3StakeManager is IAd3StakeManager, ReentrancyGuard
 
             (, uint160 secondsPerLiquidityInsideX128, ) =
                 key.pool.snapshotCumulativesInside(tickLower, tickUpper);
-            (reward, ) =
+            (reward, secondsInsideX128) =
                 RewardCalculator.computeRewardAmount(
                     incentive.totalRewardUnclaimed,
                     incentive.totalSecondsClaimedX128,

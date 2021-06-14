@@ -28,17 +28,17 @@ let loadFixture: LoadFixtureFunction;
 
 
 describe('unittest/Incentive', () => {
-    let wallets = provider.getWallets();
-    let context: UniswapFixtureType;
-    let totalReward = BNe18(100);
-    let minPrice = BNe18(1);
-    let maxPrice = BNe18(10);
-    let erc20Helper = new ERC20Helper();
-    let accounts = new AccountFixture(wallets, provider)
-    let stakerOwner = accounts.stakerDeployer();
+    const wallets = provider.getWallets();
+    const totalReward = BNe18(100);
+    const minPrice = BNe18(1);
+    const maxPrice = BNe18(10);
+    const erc20Helper = new ERC20Helper();
+    const accounts = new AccountFixture(wallets, provider)
+    const stakerOwner = accounts.stakerDeployer();
     const timeMachine = createTimeMachine(provider);
     const lpUser0 = accounts.lpUser0();
     const lpUser1 = accounts.lpUser1();
+    let context: UniswapFixtureType;
 
     before('loader', async () => {
         loadFixture = createFixtureLoader(provider.getWallets(), provider)
@@ -48,12 +48,9 @@ describe('unittest/Incentive', () => {
         context = await loadFixture(UniswapFixture);
     });
 
-    describe('#createIncentive', async () => {
+    describe('createIncentive', async () => {
         let rewardToken: string;
         let pool01: string;
-        let _startTime: number;
-        let _endTime: number;
-
         let incentiveKey: any;
 
         beforeEach('setup', async () => {
@@ -68,7 +65,7 @@ describe('unittest/Incentive', () => {
             };
         });
 
-        it('createIncentive', async () => {
+        it('only owner can create incentive', async () => {
             await erc20Helper.ensureBalanceAndApprovals(
                 stakerOwner,
                 context.rewardToken,
@@ -109,7 +106,7 @@ describe('unittest/Incentive', () => {
 
     });
 
-    describe('#after createIncentive', () => {
+    describe('createIncentive and cancelIncentive', () => {
         let rewardToken: string;
         let incentiveKey: any;
         let pool01: string;

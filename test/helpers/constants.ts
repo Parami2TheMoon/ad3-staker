@@ -95,7 +95,7 @@ export function getMinTick(tickSpacing: number): number {
 }
 
 export function getMaxTick(tickSpacing: number): number {
-    return Math.ceil(887272 / tickSpacing) * tickSpacing;
+    return Math.floor(887272 / tickSpacing) * tickSpacing;
 }
 
 export function getMaxLiquidityPerTick(tickSpacing: number): BigNumber {

@@ -61,7 +61,7 @@ interface IAd3StakeManager is IERC721Receiver {
             uint256 numberOfStakes
         );
 
-    function _rewards(address rewardToken, address owner)
+    function rewards(address rewardToken, address owner)
         external
         view
         returns (uint256 rewardsOwed);
@@ -85,7 +85,7 @@ interface IAd3StakeManager is IERC721Receiver {
 
     function claimReward(address rewardToken, address recipient) external;
 
-    function getRewardAmount(IncentiveKey memory key, uint256 tokenId) external view returns (uint256);
+    function getRewardAmount(IncentiveKey memory key, uint256 tokenId) external view returns (uint256, uint160);
 
     event IncentiveCreated(
         IERC20 indexed rewardToken,
