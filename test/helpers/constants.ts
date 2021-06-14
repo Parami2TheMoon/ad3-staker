@@ -1,5 +1,6 @@
 import { BigNumberish, BigNumber, Wallet } from 'ethers';
 import bn from 'bignumber.js';
+import { provider } from "../helpers/provider";
 import {Ad3StakeManager, TestERC20} from '../../typechain';
 import { isArray, isString } from 'lodash';
 
@@ -76,3 +77,46 @@ export class ERC20Helper {
         }
     }
 }
+
+export function getTickSpacing(fee: FeeAmount): number {
+    let tickSpacing: number;
+    if (fee == FeeAmount.LOW) {
+        tickSpacing = 10;
+    } else if (fee == FeeAmount.MEDIUM) {
+        tickSpacing = 60;
+    } else {
+        tickSpacing = 200;
+    }
+    return tickSpacing;
+}
+
+export function getMinTick(tickSpacing: number): number {
+    return Math.ceil(-887272 / tickSpacing) * tickSpacing;
+}
+
+export function getMaxTick(tickSpacing: number): number {
+    return Math.ceil(887272 / tickSpacing) * tickSpacing;
+}
+
+export function getMaxLiquidityPerTick(tickSpacing: number): BigNumber {
+    return BigNumber.from(2)
+            .pow(128)
+            .sub(1)
+            .div((getMaxTick(tickSpacing) - getMinTick(tickSpacing)) / tickSpacing + 1);
+}
+
+export const blockTimestamp = async () => {
+    const block = await provider.getBlock('latest');
+    if (!block) {
+        throw new Error('null block returned from provider');
+    }
+    return block.timestamp;
+}
+
+export const makeTimestamps = (
+  n: number,
+  duration: number = 1_000,
+) => ({
+  startTime: n + 100,
+  endTime: n + 100 + duration,
+})

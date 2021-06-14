@@ -49,10 +49,11 @@ library NFTPositionInfo {
 
         ) = nonfungiblePositionManager.positions(tokenId);
 
+        PoolAddress.PoolKey memory poolKey = PoolAddress.getPoolKey(token0, token1, fee);
         pool = IUniswapV3Pool(
             PoolAddress.computeAddress(
                 address(factory),
-                PoolAddress.PoolKey({token0: token0, token1: token1, fee: fee})
+                poolKey
             )
         );
     }

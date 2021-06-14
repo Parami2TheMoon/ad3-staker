@@ -2,7 +2,7 @@ import { MockProvider } from 'ethereum-waffle';
 
 type TimeSetterFunction = (timestamp: number) => Promise<void>;
 
-type TimeSetters {
+type TimeSetters = {
     set: TimeSetterFunction,
     step: TimeSetterFunction,
     setAndMine: TimeSetterFunction

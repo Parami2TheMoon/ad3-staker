@@ -19,6 +19,24 @@ interface IAd3StakeManager is IERC721Receiver {
         uint256 endTime;
     }
 
+    struct Stake {
+        uint160 secondsPerLiquidityInsideInitialX128;
+        uint128 liquidity;
+        address owner;
+    }
+
+    struct Incentive {
+        uint256 totalRewardUnclaimed;
+        uint160 totalSecondsClaimedX128;
+        uint256 minPrice;
+        uint256 maxPrice;
+    }
+
+    struct Deposit {
+        address recipient;
+        uint256 numberOfStakes;
+    }
+
     function factory() external view returns (IUniswapV3Factory);
 
     function nonfungiblePositionManager()
@@ -35,6 +53,14 @@ interface IAd3StakeManager is IERC721Receiver {
             uint128 liquidity
         );
 
+    function deposits(uint256 tokenId)
+        external
+        view
+        returns (
+            address recipient,
+            uint256 numberOfStakes
+        );
+
     function _rewards(address rewardToken, address owner)
         external
         view
@@ -45,19 +71,21 @@ interface IAd3StakeManager is IERC721Receiver {
         uint256 reward,
         uint256 minPrice,
         uint256 maxPrice
-    ) external returns (bytes32);
+    ) external;
 
-    function cancelIncentive(bytes32 incentiveId, address recipient) external;
+    function depositToken(uint256 tokenId) external;
 
-    function stakeToken(bytes32 incentiveId, uint256 tokenId) external;
+    function cancelIncentive(IncentiveKey memory key, address recipient) external;
 
-    function withdrawToken(bytes32 incentiveId, uint256 tokenId, address to) external;
+    function stakeToken(IncentiveKey memory key, uint256 tokenId) external;
 
-    function unstakeToken(bytes32 incentiveId, uint256 tokenId) external;
+    function withdrawToken(IncentiveKey memory key, uint256 tokenId, address to) external;
+
+    function unstakeToken(IncentiveKey memory key, uint256 tokenId) external;
 
     function claimReward(address rewardToken, address recipient) external;
 
-    function getRewardAmount(bytes32 incentiveId, uint256 tokenId) external view returns (uint256);
+    function getRewardAmount(IncentiveKey memory key, uint256 tokenId) external view returns (uint256);
 
     event IncentiveCreated(
         IERC20 indexed rewardToken,

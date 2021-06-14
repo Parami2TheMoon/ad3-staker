@@ -39,16 +39,13 @@ struct Stake {
 struct Incentive {
     uint256 totalRewardUnclaimed;
     uint256 totalSecondsClaimedX128;
-    uint256 numberOfStakes;
     uint256 minPrice;
     uint256 maxPrice;
-    IncentiveKey key;
 }
 ```
 
 * totalRewardUnclaimed: AD3 totalSupply for this pool
 * totalSecondsClaimedX128: Total claimed seconds
-* numberOfStakes: Number of stakers
 * minPrice & maxPrice: Price range
 
 ## Interfaces
@@ -61,51 +58,51 @@ function createIncentive(
     uint256 reward,
     uint256 minPrice,
     uint256 maxPrice
-) external returns (bytes32);
+) external;
 ```
 
-Only owner can create a incentive structure. And return bytes32 incentiveId as key.
+Only owner can create a incentive structure.
 
 ### cancelIncentive
 
 ```
-function cancelIncentive(bytes32 incentiveId, address recipient) external;
+function cancelIncentive(IncentiveKey memory key, address recipient) external;
 ```
 
-incentiveId: createIncentive return value
+key: IncentiveKey which use to createIncentive
 recipient: send rest of AD3 to this address
 
 ### stakeToken
 
 ```
-function stakeToken(bytes32 incentiveId, uint256 tokenId) external;
+function stakeToken(IncentiveKey memory key, uint256 tokenId) external;
 ```
 
 User stake NFT LP to this function
 
-incentiveID: createIncentive return value
+key: IncentiveKey which use to createIncentive
 tokenId: user NFT lp tokenId
 
 ### unstakeToken
 
 ```
-function unstakeToken(bytes32 incentiveId, uint256 tokenId) external;
+function unstakeToken(IncentiveKey memory key, uint256 tokenId) external;
 ```
 
 User unstake NFT LP to this function
 
-incentiveID: createIncentive return value
+key: IncentiveKey which use to createIncentive
 tokenId: user NFT lp tokenId
 
 ### withdrawToken
 
 ```
-function withdrawToken(bytes32 incentiveId, uint256 tokenId, address to) external;
+function withdrawToken(IncentiveKey memory key, uint256 tokenId, address to) external;
 ```
 
 User withdraw NFT LP to `to` address
 
-incentiveID: createIncentive return value
+key: IncentiveKey which use to createIncentive
 tokenId: user NFT lp tokenId
 to: address which transfer to
 

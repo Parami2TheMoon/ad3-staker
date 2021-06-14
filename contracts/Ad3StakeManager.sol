@@ -25,33 +25,18 @@ import "./libraries/RewardCalculator.sol";
 contract Ad3StakeManager is IAd3StakeManager, ReentrancyGuard
 {
     using SafeMath for uint256;
-    using SafeMath for uint160;
 
     IUniswapV3Factory public immutable override factory;
     INonfungiblePositionManager public immutable override nonfungiblePositionManager;
 
-    struct Stake {
-        uint160 secondsPerLiquidityInsideInitialX128;
-        uint128 liquidity;
-        address owner;
-    }
-
-    struct Incentive {
-        uint256 totalRewardUnclaimed;
-        uint256 totalSecondsClaimedX128;
-        uint256 numberOfStakes;
-        uint256 minPrice;
-        uint256 maxPrice;
-        IncentiveKey key;
-    }
-
+    mapping(uint256 => Deposit) _deposits;
     mapping(bytes32 => mapping(uint256 => Stake)) _stakes;
     mapping(address => mapping(address => uint256)) public override _rewards;
-    mapping(bytes32 => Incentive) incentives;
+    mapping(bytes32 => Incentive) public incentives;
 
     address public owner;
     modifier onlyOwner {
-        require(msg.sender == owner);
+        require(msg.sender == owner, 'Only Owner');
         _;
     }
 
@@ -71,10 +56,21 @@ contract Ad3StakeManager is IAd3StakeManager, ReentrancyGuard
         override
         returns (address stakeOwner, uint160 secondsPerLiquidityInsideInitialX128, uint128 liquidity)
     {
-        Stake storage stake = _stakes[incentiveId][tokenId];
+        Stake memory stake = _stakes[incentiveId][tokenId];
         stakeOwner = stake.owner;
         secondsPerLiquidityInsideInitialX128 = stake.secondsPerLiquidityInsideInitialX128;
         liquidity = stake.liquidity;
+    }
+
+    function deposits(uint256 tokenId)
+        public
+        view
+        override
+        returns (address recipient, uint256 numberOfStakes)
+    {
+        Deposit memory deposit = _deposits[tokenId];
+        recipient = deposit.recipient;
+        numberOfStakes = deposit.numberOfStakes;
     }
 
     function createIncentive(
@@ -82,7 +78,7 @@ contract Ad3StakeManager is IAd3StakeManager, ReentrancyGuard
         uint256 reward,
         uint256 minPrice,
         uint256 maxPrice
-    ) external override onlyOwner returns (bytes32)
+    ) external override onlyOwner
     {
         require(reward > 0, 'reward must be positive');
          require(
@@ -103,10 +99,8 @@ contract Ad3StakeManager is IAd3StakeManager, ReentrancyGuard
         incentives[incentiveId] = Incentive({
             totalRewardUnclaimed: reward,
             totalSecondsClaimedX128: 0,
-            numberOfStakes: 0,
             minPrice: minPrice,
-            maxPrice: maxPrice,
-            key: key
+            maxPrice: maxPrice
         });
 
         // Owner transfer token to this contract
@@ -124,26 +118,20 @@ contract Ad3StakeManager is IAd3StakeManager, ReentrancyGuard
             key.endTime,
             reward
         );
-
-        return incentiveId;
     }
 
-    function cancelIncentive(bytes32 incentiveId, address recipient)
+    function cancelIncentive(IncentiveKey memory key, address recipient)
         external
         override
         onlyOwner
     {
-        Incentive storage incentive = incentives[incentiveId];
-        IncentiveKey storage key = incentive.key;
+        bytes32 incentiveId = IncentiveId.compute(key);
+        Incentive memory incentive = incentives[incentiveId];
         uint256 rewardUnclaimed = incentive.totalRewardUnclaimed;
         require(rewardUnclaimed > 0, 'no refund available');
         require(
             block.timestamp > key.endTime,
             'cannot cancel incentive before end time'
-        );
-        require(
-            incentive.numberOfStakes == 0,
-            'cannot cancel incentive while deposits are staked'
         );
 
         // if any unclaimed rewards remain, and we're past the claim deadline, issue a refund
@@ -155,7 +143,6 @@ contract Ad3StakeManager is IAd3StakeManager, ReentrancyGuard
         );
         emit IncentiveCanceled(incentiveId, rewardUnclaimed);
     }
-
 
     /// @inheritdoc IERC721Receiver
     function onERC721Received(
@@ -169,33 +156,45 @@ contract Ad3StakeManager is IAd3StakeManager, ReentrancyGuard
             'not a univ3 nft'
         );
 
-        emit TokenReceived(tokenId, from);
+        Deposit memory deposit = _deposits[tokenId];
+        if (deposit.recipient == address(0)) {
+            _deposits[tokenId] = Deposit({recipient: from, numberOfStakes: 0});
+        } else {
+            _deposits[tokenId].numberOfStakes = _deposits[tokenId].numberOfStakes.add(1);
+        }
 
-        bytes32 incentiveId = abi.decode(data, (bytes32));
-        _stakeToken(incentiveId, tokenId, from);
+        emit TokenReceived(tokenId, from);
+        if (data.length > 0) {
+            IncentiveKey memory key = abi.decode(data, (IncentiveKey));
+            _stakeToken(key, tokenId, from);
+        }
         return this.onERC721Received.selector;
     }
 
-    function stakeToken(bytes32 incentiveId, uint256 tokenId)
-        external
-        override
+    function depositToken(uint256 tokenId) external override
     {
         nonfungiblePositionManager.safeTransferFrom(
             msg.sender,
             address(this),
-            tokenId,
-            abi.encode(incentiveId)
+            tokenId
         );
     }
 
-    function _stakeToken(bytes32 incentiveId, uint256 tokenId, address from) private {
-        Incentive storage incentive = incentives[incentiveId];
-        IncentiveKey storage key = incentive.key;
+    function stakeToken(IncentiveKey memory key, uint256 tokenId)
+        external
+        override
+    {
+        require(msg.sender == _deposits[tokenId].recipient, 'sender is not nft owner');
+        _stakeToken(key, tokenId, msg.sender);
+    }
+
+    function _stakeToken(IncentiveKey memory key, uint256 tokenId, address from) private {
+        bytes32 incentiveId = IncentiveId.compute(key);
+        Incentive memory incentive = incentives[incentiveId];
 
         require(block.timestamp >= key.startTime, 'incentive not started');
         require(block.timestamp <= key.endTime, 'incentive has ended');
         require(incentive.totalRewardUnclaimed > 0, 'non-existent incentive');
-
         require(_stakes[incentiveId][tokenId].liquidity == 0, 'token already stake');
 
         (
@@ -211,7 +210,7 @@ contract Ad3StakeManager is IAd3StakeManager, ReentrancyGuard
         require(pool == key.pool, 'token pool is not incentive pool');
         require(liquidity > 0, 'can not stake token with 0 liquidity');
 
-        incentives[incentiveId].numberOfStakes.add(1);
+        _deposits[tokenId].numberOfStakes = _deposits[tokenId].numberOfStakes.add(1);
         (, uint160 secondsPerLiquidityInsideX128, ) =
             pool.snapshotCumulativesInside(tickLower, tickUpper);
 
@@ -224,18 +223,18 @@ contract Ad3StakeManager is IAd3StakeManager, ReentrancyGuard
         emit TokenStaked(incentiveId, tokenId, liquidity);
     }
 
-    function updateReward(bytes32 incentiveId, uint256 tokenId)
+    function updateReward(IncentiveKey memory key, uint256 tokenId)
         public
         nonReentrant
     {
+        bytes32 incentiveId = IncentiveId.compute(key);
+        Incentive memory incentive = incentives[incentiveId];
+
         (
             address stakeOwner,
             uint160 secondsPerLiquidityInsideInitialX128,
             uint128 liquidity
         ) = stakes(incentiveId, tokenId);
-
-        Incentive storage incentive = incentives[incentiveId];
-        IncentiveKey storage key = incentive.key;
 
         if (incentive.totalRewardUnclaimed > 0) {
             (, , , , , int24 tickLower, int24 tickUpper, , , , , ) =
@@ -253,59 +252,69 @@ contract Ad3StakeManager is IAd3StakeManager, ReentrancyGuard
                     secondsPerLiquidityInsideInitialX128,
                     secondsPerLiquidityInsideX128
                 );
-            incentive.totalSecondsClaimedX128 = incentive.totalSecondsClaimedX128.add(secondsInsideX128);
-            incentive.totalRewardUnclaimed = incentive.totalRewardUnclaimed.sub(reward);
-            _rewards[address(incentive.key.rewardToken)][stakeOwner].add(reward);
+            incentives[incentiveId].totalSecondsClaimedX128 = uint160(SafeMath.add(incentives[incentiveId].totalSecondsClaimedX128,
+                                                                           secondsInsideX128));
+            incentives[incentiveId].totalRewardUnclaimed = incentives[incentiveId].totalRewardUnclaimed.sub(reward);
+
+            address rewardToken = address(key.rewardToken);
+            _rewards[rewardToken][stakeOwner] = _rewards[rewardToken][stakeOwner].add(reward);
         }
     }
 
-    function unstakeToken(bytes32 incentiveId, uint256 tokenId)
+    function unstakeToken(IncentiveKey memory key, uint256 tokenId)
         external
         override
     {
+        bytes32 incentiveId = IncentiveId.compute(key);
         (
             address stakeOwner,
             ,
             uint128 liquidity
         ) = stakes(incentiveId, tokenId);
-        require(stakeOwner == msg.sender, 'only owner can withdraw token');
+
+        require(_deposits[tokenId].recipient == msg.sender, 'only owner can unstake token');
+        require(stakeOwner == msg.sender, 'only owner can unstake token');
         require(liquidity > 0, 'stake does not exist');
 
-        updateReward(incentiveId, tokenId);
-        incentives[incentiveId].numberOfStakes = incentives[incentiveId].numberOfStakes.sub(1);
+        updateReward(key, tokenId);
+        _deposits[tokenId].numberOfStakes = _deposits[tokenId].numberOfStakes.sub(1);
         _stakes[incentiveId][tokenId].secondsPerLiquidityInsideInitialX128 = 0;
         _stakes[incentiveId][tokenId].liquidity = 0;
 
         emit TokenUnstaked(incentiveId, tokenId);
     }
 
-    function withdrawToken(bytes32 incentiveId, uint256 tokenId, address to)
+    function withdrawToken(IncentiveKey memory key, uint256 tokenId, address to)
         external
         override
     {
+        bytes32 incentiveId = IncentiveId.compute(key);
         address stakeOwner = _stakes[incentiveId][tokenId].owner;
+        require(_deposits[tokenId].recipient == msg.sender, 'only owner can withdraw token');
+        require(_deposits[tokenId].numberOfStakes == 0, 'nonzero number of stakes');
         require(stakeOwner == msg.sender, 'only owner can withdraw token');
 
+        delete _deposits[tokenId];
         delete _stakes[incentiveId][tokenId];
         nonfungiblePositionManager.safeTransferFrom(address(this), to, tokenId);
 
         emit TokenWithdraw(incentiveId, tokenId, to);
     }
 
-    function getRewardAmount(bytes32 incentiveId, uint256 tokenId)
+    function getRewardAmount(IncentiveKey memory key, uint256 tokenId)
         external
         override
         view
         returns (uint256 reward)
     {
+        bytes32 incentiveId = IncentiveId.compute(key);
         (
             ,
             uint160 secondsPerLiquidityInsideInitialX128,
             uint128 liquidity
         ) = stakes(incentiveId, tokenId);
 
-        Incentive storage incentive = incentives[incentiveId];
-        IncentiveKey storage key = incentive.key;
+        Incentive memory incentive = incentives[incentiveId];
 
         if (incentive.totalRewardUnclaimed > 0) {
             (, , , , , int24 tickLower, int24 tickUpper, , , , , ) =
