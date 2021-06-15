@@ -359,6 +359,7 @@ contract Ad3StakeManager is IAd3StakeManager, ReentrancyGuard
         nonReentrant
     {
         uint256 reward = _rewards[rewardToken][msg.sender];
+        require(reward > 0, 'non reward can be claim');
         _rewards[rewardToken][msg.sender] = 0;
         TransferHelper.safeTransfer(rewardToken, recipient, reward);
 
