@@ -72,13 +72,13 @@ function cancelIncentive(IncentiveKey memory key, address recipient) external;
 key: IncentiveKey which use to createIncentive
 recipient: send rest of AD3 to this address
 
-### stakeToken
+### depositAndStakeToken
 
 ```
-function stakeToken(IncentiveKey memory key, uint256 tokenId) external;
+function depositAndStakeToken(IncentiveKey memory key, uint256 tokenId) external;
 ```
 
-User stake NFT LP to this function
+User deposit and stake NFT LP to this function
 
 key: IncentiveKey which use to createIncentive
 tokenId: user NFT lp tokenId

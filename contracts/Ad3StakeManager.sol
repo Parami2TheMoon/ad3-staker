@@ -180,7 +180,7 @@ contract Ad3StakeManager is IAd3StakeManager, ReentrancyGuard
         return this.onERC721Received.selector;
     }
 
-    function depositToken(uint256 tokenId) external override
+    function depositToken(uint256 tokenId) public override
     {
         nonfungiblePositionManager.safeTransferFrom(
             msg.sender,
@@ -193,6 +193,15 @@ contract Ad3StakeManager is IAd3StakeManager, ReentrancyGuard
         external
         override
     {
+        require(msg.sender == _deposits[tokenId].recipient, 'sender is not nft owner');
+        _stakeToken(key, tokenId, msg.sender);
+    }
+
+    function depositAndStakeToken(IncentiveKey memory key, uint256 tokenId)
+        external
+        override
+    {
+        depositToken(tokenId);
         require(msg.sender == _deposits[tokenId].recipient, 'sender is not nft owner');
         _stakeToken(key, tokenId, msg.sender);
     }

@@ -79,6 +79,8 @@ interface IAd3StakeManager is IERC721Receiver {
 
     function stakeToken(IncentiveKey memory key, uint256 tokenId) external;
 
+    function depositAndStakeToken(IncentiveKey memory key, uint256 tokenId) external;
+
     function withdrawToken(IncentiveKey memory key, uint256 tokenId, address to) external;
 
     function unstakeToken(IncentiveKey memory key, uint256 tokenId) external;
