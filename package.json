@@ -1,9 +1,8 @@
 {
-  "name": "@yinfinance/qi",
+  "name": "@ad3staker/stakemanager",
   "description": "Liquidity manager",
   "license": "MIT",
   "version": "1.0.0",
-  "homepage": "https://uniswap.org",
   "keywords": [
     "uniswap",
     "liquidity mining",
