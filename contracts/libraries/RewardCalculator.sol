@@ -23,19 +23,20 @@ library RewardCalculator {
 
         secondsInsideX128 = uint160(
             SafeMath.mul(
-                secondsPerLiquidityInsideX128 -
-                    secondsPerLiquidityInsideInitialX128,
+                SafeMath.sub(secondsPerLiquidityInsideX128,
+                            secondsPerLiquidityInsideInitialX128
+                            ),
                 liquidity
             )
         );
 
         uint160 totalSecondsUnclaimedX128 =
-            uint160(
+            uint160(SafeMath.sub(
                 SafeMath.mul(
-                    Math.max(endTime, block.timestamp) - startTime,
+                    SafeMath.sub(Math.max(endTime, block.timestamp), startTime),
                     FixedPoint128.Q128
-                ) - totalSecondsClaimedX128
-            );
+                ), totalSecondsClaimedX128
+            ));
 
         reward = FullMath.mulDiv(
             totalRewardUnclaimed,
