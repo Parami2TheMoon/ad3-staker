@@ -1,0 +1,56 @@
+[
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "totalRewardUnclaimed",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint160",
+        "name": "totalSecondsClaimedX128",
+        "type": "uint160"
+      },
+      {
+        "internalType": "uint256",
+        "name": "startTime",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "endTime",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint128",
+        "name": "liquidity",
+        "type": "uint128"
+      },
+      {
+        "internalType": "uint160",
+        "name": "secondsPerLiquidityInsideInitialX128",
+        "type": "uint160"
+      },
+      {
+        "internalType": "uint160",
+        "name": "secondsPerLiquidityInsideX128",
+        "type": "uint160"
+      }
+    ],
+    "name": "computeRewardAmount",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "reward",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint160",
+        "name": "secondsInsideX128",
+        "type": "uint160"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  }
+]
