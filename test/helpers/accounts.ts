@@ -4,7 +4,7 @@ import { Wallet } from 'ethers';
 export const WALLET_USER_INDEXES = {
     WETH_OWNER: 0,
     TOKENS_OWNER: 1,
-    UNISWAP_ROOT: 2,
+    GOVERANCE: 2,
     STAKER_DEPLOYER: 3,
     LP_USER_0: 4,
     LP_USER_1: 5,
@@ -32,8 +32,8 @@ export class AccountFixture {
         return this._getAccount(WALLET_USER_INDEXES.TOKENS_OWNER);
     }
 
-    uniswapRootUser() {
-        return this._getAccount(WALLET_USER_INDEXES.UNISWAP_ROOT);
+    goverance() {
+        return this._getAccount(WALLET_USER_INDEXES.GOVERANCE);
     }
 
     stakerDeployer() {

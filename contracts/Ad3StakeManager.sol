@@ -34,20 +34,33 @@ contract Ad3StakeManager is IAd3StakeManager, ReentrancyGuard
     mapping(address => mapping(address => uint256)) _rewards;
     mapping(bytes32 => Incentive) public incentives;
 
-    address public owner;
-    modifier onlyOwner {
-        require(msg.sender == owner, 'Only Owner');
+    address public gov;
+    address public nextgov;
+
+    modifier onlyGov {
+        require(msg.sender == gov, 'only gov');
         _;
     }
 
     constructor(
+        address _gov,
         address _factory,
         address _nonfungiblePositionManager
     )
     {
-        owner = msg.sender;
+        gov = _gov;
         factory = IUniswapV3Factory(_factory);
         nonfungiblePositionManager = INonfungiblePositionManager(_nonfungiblePositionManager);
+    }
+
+    function setGoverance(address _gov) external onlyGov {
+        nextgov = _gov;
+    }
+
+    function acceptGoverance() external {
+        require(msg.sender == nextgov);
+        gov = msg.sender;
+        nextgov = address(0);
     }
 
     function stakes(bytes32 incentiveId, uint256 tokenId)
@@ -87,7 +100,7 @@ contract Ad3StakeManager is IAd3StakeManager, ReentrancyGuard
         uint256 reward,
         uint256 minPrice,
         uint256 maxPrice
-    ) external override onlyOwner
+    ) external override onlyGov
     {
         require(reward > 0, 'reward must be positive');
          require(
@@ -132,7 +145,7 @@ contract Ad3StakeManager is IAd3StakeManager, ReentrancyGuard
     function cancelIncentive(IncentiveKey memory key, address recipient)
         external
         override
-        onlyOwner
+        onlyGov
     {
         bytes32 incentiveId = IncentiveId.compute(key);
         Incentive memory incentive = incentives[incentiveId];

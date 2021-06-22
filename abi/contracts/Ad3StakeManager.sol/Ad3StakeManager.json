@@ -3,6 +3,11 @@
     "inputs": [
       {
         "internalType": "address",
+        "name": "_gov",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
         "name": "_factory",
         "type": "address"
       },
@@ -183,6 +188,13 @@
     ],
     "name": "TokenWithdraw",
     "type": "event"
+  },
+  {
+    "inputs": [],
+    "name": "acceptGoverance",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
   },
   {
     "inputs": [
@@ -434,6 +446,19 @@
     "type": "function"
   },
   {
+    "inputs": [],
+    "name": "gov",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
     "inputs": [
       {
         "internalType": "bytes32",
@@ -462,6 +487,19 @@
         "internalType": "uint256",
         "name": "maxPrice",
         "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "nextgov",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
       }
     ],
     "stateMutability": "view",
@@ -515,19 +553,6 @@
     "type": "function"
   },
   {
-    "inputs": [],
-    "name": "owner",
-    "outputs": [
-      {
-        "internalType": "address",
-        "name": "",
-        "type": "address"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
     "inputs": [
       {
         "internalType": "address",
@@ -549,6 +574,19 @@
       }
     ],
     "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "_gov",
+        "type": "address"
+      }
+    ],
+    "name": "setGoverance",
+    "outputs": [],
+    "stateMutability": "nonpayable",
     "type": "function"
   },
   {

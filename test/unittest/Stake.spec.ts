@@ -38,7 +38,7 @@ describe('unittest/StakeAndWithdraw', () => {
     const maxPrice = BNe18(10);
     const erc20Helper = new ERC20Helper();
     const accounts = new AccountFixture(wallets, provider)
-    const stakerOwner = accounts.stakerDeployer();
+    const gov = accounts.goverance();
     const timeMachine = createTimeMachine(provider);
     const lpUser0 = accounts.lpUser0();
     const lpUser1 = accounts.lpUser1();
@@ -74,12 +74,12 @@ describe('unittest/StakeAndWithdraw', () => {
         };
         incentiveId = await context.testIncentiveId.compute(incentiveKey);
         await erc20Helper.ensureBalanceAndApprovals(
-            stakerOwner,
+            gov,
             context.rewardToken,
             totalReward,
             context.staker.address
         );
-        await context.staker.connect(stakerOwner).createIncentive(
+        await context.staker.connect(gov).createIncentive(
             incentiveKey,
             totalReward,
             minPrice,
@@ -234,7 +234,7 @@ describe('unittest/StakeAndWithdraw', () => {
 
         it('returns 0 when cancel incentive', async () => {
             await timeMachine.set(incentiveKey.endTime + 1);
-            await context.staker.connect(stakerOwner).cancelIncentive(incentiveKey, lpUser1.address);
+            await context.staker.connect(gov).cancelIncentive(incentiveKey, lpUser1.address);
             const { reward } = await context.staker.connect(lpUser0).getRewardAmount(incentiveKey, tokenId);
             expect(reward).to.eq(0);
         })

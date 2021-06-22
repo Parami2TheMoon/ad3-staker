@@ -212,9 +212,11 @@ export const mintPosition = async (
 
 export const UniswapFixture: Fixture<UniswapFixtureType> = async (wallets, provider) => {
     const {tokens, nft, factory, router} = await uniswapFactoryFixture(wallets, provider);
-    const signer = new AccountFixture(wallets, provider).stakerDeployer()
+    const accounts = new AccountFixture(wallets, provider);
+    const signer = accounts.stakerDeployer()
+    const gov = accounts.goverance();
     const stakerFactory = await ethers.getContractFactory('Ad3StakeManager', signer);
-    const staker =(await stakerFactory.deploy(factory.address, nft.address)) as Ad3StakeManager;
+    const staker =(await stakerFactory.deploy(gov.address, factory.address, nft.address)) as Ad3StakeManager;
     const testIncentiveIdFactory = await ethers.getContractFactory('TestIncentiveId', signer);
     const testIncentiveId = (await testIncentiveIdFactory.deploy()) as TestIncentiveId;
 

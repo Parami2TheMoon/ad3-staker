@@ -34,7 +34,7 @@ describe('unittest/Incentive', () => {
     const maxPrice = BNe18(10);
     const erc20Helper = new ERC20Helper();
     const accounts = new AccountFixture(wallets, provider)
-    const stakerOwner = accounts.stakerDeployer();
+    const gov = accounts.goverance();
     const timeMachine = createTimeMachine(provider);
     const lpUser0 = accounts.lpUser0();
     const lpUser1 = accounts.lpUser1();
@@ -65,30 +65,30 @@ describe('unittest/Incentive', () => {
             };
         });
 
-        it('only owner can create incentive', async () => {
+        it('only goverance can create incentive', async () => {
             await erc20Helper.ensureBalanceAndApprovals(
-                stakerOwner,
+                gov,
                 context.rewardToken,
                 totalReward,
                 context.staker.address
             );
             const _incentiveId = await context.testIncentiveId.compute(incentiveKey);
-            const balanceOf = await context.rewardToken.balanceOf(stakerOwner.address);
+            const balanceOf = await context.rewardToken.balanceOf(gov.address);
             expect(balanceOf.toString()).to.equal(totalReward.toString());
-            const allowance = await context.rewardToken.allowance(stakerOwner.address, context.staker.address);
+            const allowance = await context.rewardToken.allowance(gov.address, context.staker.address);
             expect(allowance.toString()).to.equal(totalReward.toString());
 
-            await context.staker.connect(stakerOwner).createIncentive(
+            await context.staker.connect(gov).createIncentive(
                 incentiveKey,
                 totalReward,
                 minPrice,
                 maxPrice
             );
-            const incentive = await context.staker.connect(stakerOwner).incentives(_incentiveId);
+            const incentive = await context.staker.connect(gov).incentives(_incentiveId);
             expect(incentive).to.not.equal({});
         });
 
-        it('not owner can not create incentive', async () => {
+        it('other can not create incentive', async () => {
             await erc20Helper.ensureBalanceAndApprovals(
                 lpUser0,
                 context.rewardToken,
@@ -101,7 +101,7 @@ describe('unittest/Incentive', () => {
                 totalReward,
                 minPrice,
                 maxPrice
-            )).to.be.revertedWith('Only Owner');
+            )).to.be.revertedWith('only gov');
         })
 
     });
@@ -121,13 +121,13 @@ describe('unittest/Incentive', () => {
                 endTime: endTime
             }
             await erc20Helper.ensureBalanceAndApprovals(
-                stakerOwner,
+                gov,
                 context.rewardToken,
                 totalReward,
                 context.staker.address
             );
             const _incentiveId = await context.testIncentiveId.compute(incentiveKey);
-            await context.staker.connect(stakerOwner).createIncentive(
+            await context.staker.connect(gov).createIncentive(
                 incentiveKey,
                 totalReward,
                 minPrice,
@@ -135,24 +135,24 @@ describe('unittest/Incentive', () => {
             );
         });
 
-        it('only owner can cancel incentive', async () => {
+        it('only gov can cancel incentive', async () => {
             await expect(context.staker.connect(lpUser0).cancelIncentive(
                 incentiveKey,
-                lpUser1.address)).to.be.revertedWith('Only Owner');
+                lpUser1.address)).to.be.revertedWith('only gov');
         });
 
         it('cannot cancel incentive before endTime', async () => {
-            await expect(context.staker.connect(stakerOwner).cancelIncentive(
+            await expect(context.staker.connect(gov).cancelIncentive(
                 incentiveKey,
                 lpUser1.address
             )).to.revertedWith('revert cannot cancel incentive before end time');
         });
 
-        it('owner cancel incentive after endTime', async () => {
+        it('goverance cancel incentive after endTime', async () => {
             let balanceOf = await context.rewardToken.balanceOf(lpUser1.address);
             expect(balanceOf.toString()).to.equal('0');
             await timeMachine.set(incentiveKey.endTime + 1);
-            await context.staker.connect(stakerOwner).cancelIncentive(
+            await context.staker.connect(gov).cancelIncentive(
                 incentiveKey,
                 lpUser1.address
             );
