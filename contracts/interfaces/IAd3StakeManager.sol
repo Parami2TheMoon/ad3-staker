@@ -37,6 +37,15 @@ interface IAd3StakeManager is IERC721Receiver {
         uint256 numberOfStakes;
     }
 
+    struct Range {
+        address pool;
+        int24 tickLower;
+        int24 tickUpper;
+    }
+
+    function addRange(address pool, int24 tickLower, int24 tickUpper) external;
+    function checkRange(address pool) external view returns (int24, int24);
+
     function factory() external view returns (IUniswapV3Factory);
 
     function nonfungiblePositionManager()
@@ -112,4 +121,6 @@ interface IAd3StakeManager is IERC721Receiver {
     event TokenUnstaked(bytes32 indexed incentiveId, uint256 indexed tokenId);
 
     event RewardClaimed(address indexed rewardToken, address indexed recipient, uint256 reward);
+
+    event AddRange(address indexed poolToken, int24 indexed tickLower, int24 indexed tickUpper);
 }

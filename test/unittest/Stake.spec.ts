@@ -86,6 +86,9 @@ describe('unittest/StakeAndWithdraw', () => {
             maxPrice
         );
 
+        // add Range to staker
+        await context.staker.connect(gov).addRange(pool01, 100, 120);
+
         // setup NFT
         await erc20Helper.ensureBalanceAndApprovals(
             lpUser0,
@@ -128,7 +131,7 @@ describe('unittest/StakeAndWithdraw', () => {
 
         it('unstake token', async () => {
             await context.staker.connect(lpUser0).depositToken(tokenId);
-            await timeMachine.set(incentiveKey.startTime + 1);
+            await timeMachine.setAndMine(incentiveKey.startTime + 1);
             await context.staker.connect(lpUser0).stakeToken(incentiveKey, tokenId);
             expect((await context.staker.deposits(tokenId)).numberOfStakes).to.eq(1);
             expect((await context.staker.stakes(incentiveId, tokenId)).secondsPerLiquidityInsideInitialX128).to.gt(0);
@@ -228,7 +231,6 @@ describe('unittest/StakeAndWithdraw', () => {
             const expectedSecondsInPeriod = secondsPerLiquidityInsideX128
                     .sub(stake.secondsPerLiquidityInsideInitialX128)
                     .mul(stake.liquidity);
-
             expect(secondsInsideX128).to.eq(expectedSecondsInPeriod);
         });
 

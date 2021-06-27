@@ -33,6 +33,7 @@ contract Ad3StakeManager is IAd3StakeManager, ReentrancyGuard
     mapping(bytes32 => mapping(uint256 => Stake)) _stakes;
     mapping(address => mapping(address => uint256)) _rewards;
     mapping(bytes32 => Incentive) public incentives;
+    mapping(address => Range) _ranges;
 
     address public gov;
     address public nextgov;
@@ -61,6 +62,38 @@ contract Ad3StakeManager is IAd3StakeManager, ReentrancyGuard
         require(msg.sender == nextgov);
         gov = msg.sender;
         nextgov = address(0);
+    }
+
+    function addRange(address pool, int24 tickLower, int24 tickUpper)
+        external
+        override
+        onlyGov
+    {
+        Range storage range = _ranges[pool];
+        if (range.pool != address(0)) {
+            updateRange(pool, tickLower, tickUpper);
+        } else {
+            range.pool = pool;
+            range.tickLower = tickLower;
+            range.tickUpper = tickUpper;
+            emit AddRange(pool, tickLower, tickUpper);
+        }
+    }
+
+    function updateRange(address pool, int24 tickLower, int24 tickUpper) internal
+    {
+        Range storage range = _ranges[pool];
+        require(pool == range.pool, 'pool does not match');
+        range.pool = pool;
+        range.tickLower = tickLower;
+        range.tickUpper = tickUpper;
+    }
+
+    function checkRange(address pool) external override view returns (int24, int24)
+    {
+        Range memory range = _ranges[pool];
+        require(pool == range.pool, 'pool does not match');
+        return (range.tickLower, range.tickUpper);
     }
 
     function stakes(bytes32 incentiveId, uint256 tokenId)
@@ -254,6 +287,33 @@ contract Ad3StakeManager is IAd3StakeManager, ReentrancyGuard
         emit TokenStaked(incentiveId, tokenId, liquidity);
     }
 
+    function _updateReward(
+        bytes32 incentiveId,
+        uint256 tokenId,
+        address rewardToken,
+        address poolToken,
+        uint256 reward,
+        uint160 secondsInsideX128,
+        int24 tickLower
+    ) internal
+    {
+        (
+            address stakeOwner,
+            ,
+        ) = stakes(incentiveId, tokenId);
+        Range storage range = _ranges[poolToken];
+        require(range.pool != address(0), 'pool address does not exist');
+        if (range.tickLower < tickLower) {
+            return;
+        }
+
+        incentives[incentiveId].totalSecondsClaimedX128 = uint160(
+                SafeMath.add(incentives[incentiveId].totalSecondsClaimedX128,
+                             secondsInsideX128));
+        incentives[incentiveId].totalRewardUnclaimed = incentives[incentiveId].totalRewardUnclaimed.sub(reward);
+        _rewards[rewardToken][stakeOwner] = _rewards[rewardToken][stakeOwner].add(reward);
+    }
+
     function updateReward(IncentiveKey memory key, uint256 tokenId)
         public
         nonReentrant
@@ -262,7 +322,7 @@ contract Ad3StakeManager is IAd3StakeManager, ReentrancyGuard
         Incentive memory incentive = incentives[incentiveId];
 
         (
-            address stakeOwner,
+            ,
             uint160 secondsPerLiquidityInsideInitialX128,
             uint128 liquidity
         ) = stakes(incentiveId, tokenId);
@@ -283,12 +343,15 @@ contract Ad3StakeManager is IAd3StakeManager, ReentrancyGuard
                     secondsPerLiquidityInsideInitialX128,
                     secondsPerLiquidityInsideX128
                 );
-            incentives[incentiveId].totalSecondsClaimedX128 = uint160(SafeMath.add(incentives[incentiveId].totalSecondsClaimedX128,
-                                                                           secondsInsideX128));
-            incentives[incentiveId].totalRewardUnclaimed = incentives[incentiveId].totalRewardUnclaimed.sub(reward);
-
-            address rewardToken = address(key.rewardToken);
-            _rewards[rewardToken][stakeOwner] = _rewards[rewardToken][stakeOwner].add(reward);
+            _updateReward(
+                incentiveId,
+                tokenId,
+                address(key.rewardToken),
+                address(key.pool),
+                reward,
+                secondsInsideX128,
+                tickLower
+            );
         }
     }
 
@@ -353,6 +416,7 @@ contract Ad3StakeManager is IAd3StakeManager, ReentrancyGuard
 
             (, uint160 secondsPerLiquidityInsideX128, ) =
                 key.pool.snapshotCumulativesInside(tickLower, tickUpper);
+
             (reward, secondsInsideX128) =
                 RewardCalculator.computeRewardAmount(
                     incentive.totalRewardUnclaimed,
@@ -363,6 +427,12 @@ contract Ad3StakeManager is IAd3StakeManager, ReentrancyGuard
                     secondsPerLiquidityInsideInitialX128,
                     secondsPerLiquidityInsideX128
                 );
+
+            Range memory range = _ranges[address(key.pool)];
+            require(range.pool != address(0), 'pool address does not exist');
+            if (range.tickLower < tickLower) {
+                reward = 0;
+            }
         }
     }
 

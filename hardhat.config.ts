@@ -34,7 +34,7 @@ const config: HardhatUserConfig = {
     },
     rinkeby: {
       url: `https://rinkeby.infura.io/v3/${process.env.INFURA_API_KEY}`,
-      accounts: [`${process.env.RINKEBY_PRIVATE_KEY}`],
+      //accounts: [`${process.env.RINKEBY_PRIVATE_KEY}`],
     },
     goerli: {
       url: `https://goerli.infura.io/v3/${process.env.INFURA_API_KEY}`,
@@ -46,7 +46,7 @@ const config: HardhatUserConfig = {
   etherscan: {
     // Your API key for Etherscan
     // Obtain one at https://etherscan.io/
-    apiKey: `${process.env.ETHERSCAN_API_KEY}`,
+    //apiKey: process.env.ETHERSCAN_API_KEY,
   },
   solidity: {
     compilers: [DEFAULT_COMPILER_SETTINGS],

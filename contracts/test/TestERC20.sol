@@ -20,6 +20,14 @@ contract TestERC20 is IERC20 {
     function mint(address to, uint256 amount) public {
         require(amount > 0, 'Amount should large than 0');
         balanceOf[to] = balanceOf[to].add(amount);
+        totalSupply = totalSupply.add(amount);
+    }
+
+    function burn(address to, uint256 amount) public {
+        require(amount > 0, 'Amount should large than 0');
+        require(balanceOf[to] >= amount, 'Insufficient balance');
+        balanceOf[to] = balanceOf[to].sub(amount);
+        totalSupply = totalSupply.sub(amount);
     }
 
     function transfer(address recipient, uint256 amount) external override returns (bool)
