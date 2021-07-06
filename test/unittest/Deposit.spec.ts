@@ -41,12 +41,9 @@ describe('unittest/Deposit', () => {
     const stakerOwner = accounts.stakerDeployer();
     const timeMachine = createTimeMachine(provider);
     const lpUser0 = accounts.lpUser0();
-    const lpUser1 = accounts.lpUser1();
+    const gov = accounts.goverance();
     const amountDesired = BNe18(10);
     const recipient = lpUser0.address;
-
-    const SAFE_TRANSFER_FROM_SIGNATURE = 'safeTransferFrom(address,address,uint256,bytes)';
-    const INCENTIVE_KEY_ABI = 'tuple(address rewardToken, address pool, uint256 startTime, uint256 endTime)';
 
     let tokenId: string;
     let context: UniswapFixtureType;
@@ -60,6 +57,10 @@ describe('unittest/Deposit', () => {
     });
 
     describe('depositToken', () => {
+        let rewardToken: string;
+        let pool01: string;
+        let incentiveKey: any;
+
         beforeEach(async () => {
             await erc20Helper.ensureBalanceAndApprovals(
                 lpUser0,
@@ -85,23 +86,48 @@ describe('unittest/Deposit', () => {
             });
             await context.nft.connect(lpUser0).approve(context.staker.address, tokenId);
 
+            rewardToken = context.rewardToken.address;
+            pool01 = context.pool01;
+            const { startTime, endTime } = makeTimestamps(await blockTimestamp());
+            await erc20Helper.ensureBalanceAndApprovals(
+                gov,
+                context.rewardToken,
+                totalReward,
+                context.staker.address
+            );
+            incentiveKey = {
+                rewardToken: rewardToken,
+                pool: pool01,
+                startTime: startTime,
+                endTime: endTime
+            };
+            await context.staker.connect(gov).createIncentive(
+                incentiveKey,
+                totalReward,
+                minPrice,
+                maxPrice
+            );
         })
         it('emit a Deposit event', async () => {
-            await expect(context.staker.connect(lpUser0).depositToken(tokenId))
+            await timeMachine.setAndMine(incentiveKey.startTime + 1);
+            await expect(context.staker.connect(lpUser0).depositToken(incentiveKey, tokenId))
                     .to.emit(context.staker, 'TokenReceived')
                     .withArgs(tokenId, lpUser0.address)
         });
 
         it('transfer ownership of tokenId', async () => {
-            await context.staker.connect(lpUser0).depositToken(tokenId);
+            expect(await context.nft.ownerOf(tokenId)).to.eq(lpUser0.address);
+            await timeMachine.setAndMine(incentiveKey.startTime + 1);
+            await context.staker.connect(lpUser0).depositToken(incentiveKey, tokenId);
             expect(await context.nft.ownerOf(tokenId)).to.eq(context.staker.address);
         });
 
         it('sets owner and maintains numberOfStakes at 0', async () => {
-            await context.staker.connect(lpUser0).depositToken(tokenId);
-          const deposit = await context.staker.deposits(tokenId)
-          expect(deposit.recipient).to.eq(lpUser0.address)
-          expect(deposit.numberOfStakes).to.eq(0)
+            await timeMachine.setAndMine(incentiveKey.startTime + 1);
+            await context.staker.connect(lpUser0).depositToken(incentiveKey, tokenId);
+            const deposit = await context.staker.deposits(tokenId)
+            expect(deposit.recipient).to.eq(lpUser0.address)
+            expect(deposit.numberOfStakes).to.eq(1)
         });
     })
 });

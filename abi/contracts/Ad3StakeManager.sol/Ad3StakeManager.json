@@ -411,19 +411,6 @@
         "type": "uint256"
       }
     ],
-    "name": "depositAndStakeToken",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "uint256",
-        "name": "tokenId",
-        "type": "uint256"
-      }
-    ],
     "name": "depositToken",
     "outputs": [],
     "stateMutability": "nonpayable",
@@ -657,46 +644,6 @@
       }
     ],
     "name": "setGoverance",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "components": [
-          {
-            "internalType": "contract IERC20",
-            "name": "rewardToken",
-            "type": "address"
-          },
-          {
-            "internalType": "contract IUniswapV3Pool",
-            "name": "pool",
-            "type": "address"
-          },
-          {
-            "internalType": "uint256",
-            "name": "startTime",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "endTime",
-            "type": "uint256"
-          }
-        ],
-        "internalType": "struct IAd3StakeManager.IncentiveKey",
-        "name": "key",
-        "type": "tuple"
-      },
-      {
-        "internalType": "uint256",
-        "name": "tokenId",
-        "type": "uint256"
-      }
-    ],
-    "name": "stakeToken",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"

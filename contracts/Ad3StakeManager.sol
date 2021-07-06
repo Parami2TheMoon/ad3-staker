@@ -43,6 +43,11 @@ contract Ad3StakeManager is IAd3StakeManager, ReentrancyGuard
         _;
     }
 
+    modifier isAuthorizedForToken(uint256 tokenId) {
+        require(msg.sender == nonfungiblePositionManager.ownerOf(tokenId), 'not approved');
+        _;
+    }
+
     constructor(
         address _gov,
         address _factory,
@@ -226,40 +231,26 @@ contract Ad3StakeManager is IAd3StakeManager, ReentrancyGuard
         return this.onERC721Received.selector;
     }
 
-    function depositToken(uint256 tokenId) public override
+    function depositToken(IncentiveKey memory key, uint256 tokenId)
+        external
+        override
+        isAuthorizedForToken(tokenId)
     {
         nonfungiblePositionManager.safeTransferFrom(
             msg.sender,
             address(this),
-            tokenId
+            tokenId,
+            abi.encode(key)
         );
     }
 
-    function stakeToken(IncentiveKey memory key, uint256 tokenId)
-        external
-        override
-    {
-        require(msg.sender == _deposits[tokenId].recipient, 'sender is not nft owner');
-        _stakeToken(key, tokenId, msg.sender);
-    }
-
-    function depositAndStakeToken(IncentiveKey memory key, uint256 tokenId)
-        external
-        override
-    {
-        depositToken(tokenId);
-        require(msg.sender == _deposits[tokenId].recipient, 'sender is not nft owner');
-        _stakeToken(key, tokenId, msg.sender);
-    }
-
-    function _stakeToken(IncentiveKey memory key, uint256 tokenId, address from) private {
+    function _stakeToken(IncentiveKey memory key, uint256 tokenId, address from) internal {
         bytes32 incentiveId = IncentiveId.compute(key);
         Incentive memory incentive = incentives[incentiveId];
 
         require(block.timestamp >= key.startTime, 'incentive not started');
         require(block.timestamp <= key.endTime, 'incentive has ended');
         require(incentive.totalRewardUnclaimed > 0, 'non-existent incentive');
-        require(_stakes[incentiveId][tokenId].liquidity == 0, 'token already stake');
 
         (
             IUniswapV3Pool pool,
