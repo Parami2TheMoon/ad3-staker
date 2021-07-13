@@ -44,6 +44,7 @@ contract Ad3StakeManager is IAd3StakeManager, ReentrancyGuard
     mapping(bytes32 => Incentive) public override incentives;
 
     mapping(address => EnumerableSet.UintSet) private _userTokenIds;
+    EnumerableSet.UintSet private _tokenIds;
 
     address public gov;
     address public nextgov;
@@ -87,7 +88,7 @@ contract Ad3StakeManager is IAd3StakeManager, ReentrancyGuard
         incentive.maxTick = tickUpper;
     }
 
-    function getUserTokenCount(address to) external view override returns (uint256)
+    function getUserTokenIdCount(address to) external view override returns (uint256)
     {
         return _userTokenIds[to].length();
     }
@@ -96,6 +97,17 @@ contract Ad3StakeManager is IAd3StakeManager, ReentrancyGuard
     {
         require(index < _userTokenIds[to].length(), 'overflow tokenId set length');
         return _userTokenIds[to].at(index);
+    }
+
+    function getTokenIdCount() external view override returns (uint256 index)
+    {
+        return _tokenIds.length();
+    }
+
+    function getTokenId(uint256 index) external view override returns (uint256 tokenId)
+    {
+        require(index < _tokenIds.length(), 'overflow tokenId set length');
+        return _tokenIds.at(index);
     }
 
     function stakes(bytes32 incentiveId, uint256 tokenId)

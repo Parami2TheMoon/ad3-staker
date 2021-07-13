@@ -115,13 +115,22 @@ interface IAd3StakeManager is IERC721Receiver {
     /// @notice Returns numbers of user staking tokenId
     /// @param to The address for whom stake in contract
     /// @return index The index of tokenId set
-    function getUserTokenCount(address to) external view returns (uint256 index);
+    function getUserTokenIdCount(address to) external view returns (uint256 index);
 
     /// @notice Return tokenId of user index
     /// @param to The address for whom stake in this contract
     /// @param index The index of tokenId set
     /// @return tokenId
     function getTokenId(address to, uint256 index) external view returns (uint256 tokenId);
+
+    /// @notice Returns numbers of staking tokenId
+    /// @return index The index of tokenId set
+    function getTokenIdCount() external view returns (uint256 index);
+
+    /// @notice Return tokenId of index
+    /// @param index The index of tokenId set
+    /// @return tokenId
+    function getTokenId(uint256 index) external view returns (uint256 tokenId);
 
     /// @notice Creates a new liquidity mining incentive program
     /// @param key Details of the incentive to create

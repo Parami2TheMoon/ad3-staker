@@ -150,3 +150,20 @@ function getTokenId(address to, uint256 index) external view returns (uint256 to
 ```
 
 get user TokenId with index
+
+### getTokenCount
+
+```
+    function getTokenCount() external view returns (uint256 index);
+```
+
+get TokenId count
+
+
+### getTokenId
+
+```
+function getTokenId(uint256 index) external view returns (uint256 tokenId);
+```
+
+get tokenId with index
