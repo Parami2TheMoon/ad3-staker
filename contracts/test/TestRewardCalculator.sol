@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.7.6;
 
-import '../interfaces/IAd3StakeManager.sol';
-import '../libraries/RewardMath.sol';
+import "../interfaces/IAd3StakeManager.sol";
+import "../libraries/RewardMath.sol";
 
 contract TestRewardMath {
     function computeRewardAmount(

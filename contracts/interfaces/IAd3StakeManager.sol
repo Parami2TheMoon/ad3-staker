@@ -2,18 +2,17 @@
 pragma solidity ^0.7.6;
 pragma abicoder v2;
 
-import '@openzeppelin/contracts/token/ERC721/IERC721Receiver.sol';
+import "@openzeppelin/contracts/token/ERC721/IERC721Receiver.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
-import '@uniswap/v3-core/contracts/interfaces/IUniswapV3Factory.sol';
-import '@uniswap/v3-core/contracts/interfaces/IUniswapV3Pool.sol';
+import "@uniswap/v3-core/contracts/interfaces/IUniswapV3Factory.sol";
+import "@uniswap/v3-core/contracts/interfaces/IUniswapV3Pool.sol";
 
-import '@uniswap/v3-periphery/contracts/interfaces/INonfungiblePositionManager.sol';
+import "@uniswap/v3-periphery/contracts/interfaces/INonfungiblePositionManager.sol";
 
 /// @title Uniswap V3 Staker Interface
 /// @notice Allows staking nonfungible liquidity tokens in exchange for reward tokens
 interface IAd3StakeManager is IERC721Receiver {
-
     /// @param rewardToken The token being distributed as a reward
     /// @param pool The Uniswap V3 pool
     /// @param startTime The time when the incentive program begins
@@ -49,13 +48,20 @@ interface IAd3StakeManager is IERC721Receiver {
         int24 tickUpper;
     }
 
-    function updateRange(IncentiveKey memory key, int24 tickLower, int24 tickUpper) external;
+    function updateRange(
+        IncentiveKey memory key,
+        int24 tickLower,
+        int24 tickUpper
+    ) external;
 
     /// @notice The Uniswap V3 Factory
     function factory() external view returns (IUniswapV3Factory);
 
     /// @notice The nonfungible position manager with which this staking contract is compatible
-    function nonfungiblePositionManager() external view returns (INonfungiblePositionManager);
+    function nonfungiblePositionManager()
+        external
+        view
+        returns (INonfungiblePositionManager);
 
     /// @notice Represents a staking information
     /// @param incentiveId The ID of the incentive for which the token is staked
@@ -109,19 +115,27 @@ interface IAd3StakeManager is IERC721Receiver {
     /// @param rewardToken The token for which to check rewards
     /// @param recipient The owner for which the rewards owed are checked
     /// @return rewardsOwed The amount of the reward token claimable by the owner
-    function rewards(address rewardToken, address recipient) external view returns (uint256 rewardsOwed);
-
+    function rewards(address rewardToken, address recipient)
+        external
+        view
+        returns (uint256 rewardsOwed);
 
     /// @notice Returns numbers of user staking tokenId
     /// @param to The address for whom stake in contract
     /// @return index The index of tokenId set
-    function getUserTokenIdCount(address to) external view returns (uint256 index);
+    function getUserTokenIdCount(address to)
+        external
+        view
+        returns (uint256 index);
 
     /// @notice Return tokenId of user index
     /// @param to The address for whom stake in this contract
     /// @param index The index of tokenId set
     /// @return tokenId
-    function getTokenId(address to, uint256 index) external view returns (uint256 tokenId);
+    function getTokenId(address to, uint256 index)
+        external
+        view
+        returns (uint256 tokenId);
 
     /// @notice Returns numbers of staking tokenId
     /// @return index The index of tokenId set
@@ -147,9 +161,11 @@ interface IAd3StakeManager is IERC721Receiver {
     /// @notice Cancel an incentive after the incentive end time has passed and all stakes have been withdrawn
     /// @param key Details of the incentive to end
     /// @param refundee The remaining reward tokens when the incentive is ended
-    function cancelIncentive(IncentiveKey memory key, address refundee) external;
+    function cancelIncentive(IncentiveKey memory key, address refundee)
+        external;
 
     function depositToken(IncentiveKey memory key, uint256 tokenId) external;
+
     /// @notice Withdraws a Uniswap V3 LP token `tokenId` from this contract to the recipient `to`
     /// @param tokenId The unique identifier of an Uniswap V3 LP token
     /// @param to The address where the LP token will be sent
@@ -164,13 +180,20 @@ interface IAd3StakeManager is IERC721Receiver {
     /// @param rewardToken The token address being distributed as a reward
     /// @param to The address where claimed rewards will be sent to
     /// @param amountRequested The amount of reward tokens to claim. Claims entire reward amount if set to 0.
-    function claimReward(address rewardToken, address to, uint256 amountRequested) external;
+    function claimReward(
+        address rewardToken,
+        address to,
+        uint256 amountRequested
+    ) external;
 
     /// @notice Calculates the reward amount that will be received for the given stake
     /// @param key The key of the incentive
     /// @param tokenId The ID of the token
     /// @return reward The reward accrued to the NFT for the given incentive thus far
-    function getRewardInfo(IncentiveKey memory key, uint256 tokenId) external view returns (uint256, uint160);
+    function getRewardInfo(IncentiveKey memory key, uint256 tokenId)
+        external
+        view
+        returns (uint256, uint160);
 
     /// @notice Event emitted when a liquidity mining incentive has been created
     /// @param rewardToken The token address being distributed as a reward
@@ -189,7 +212,10 @@ interface IAd3StakeManager is IERC721Receiver {
     /// @notice Event that can be emitted when a liquidity mining incentive has ended
     /// @param incentiveId The incentive which is ending
     /// @param rewardUnclaimed The amount of reward tokens refunded
-    event IncentiveCanceled(bytes32 indexed incentiveId, uint256 rewardUnclaimed);
+    event IncentiveCanceled(
+        bytes32 indexed incentiveId,
+        uint256 rewardUnclaimed
+    );
 
     event TokenReceived(uint256 indexed tokenId, address indexed owner);
 
