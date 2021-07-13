@@ -8,7 +8,10 @@ import {
     ERC20Helper,
     FeeAmount,
     blockTimestamp,
-    makeTimestamps
+    makeTimestamps,
+    getTickSpacing,
+    getMinTick,
+    getMaxTick
 } from '../helpers/constants';
 import { createTimeMachine } from '../helpers/time';
 import {
@@ -30,8 +33,9 @@ let loadFixture: LoadFixtureFunction;
 describe('unittest/Incentive', () => {
     const wallets = provider.getWallets();
     const totalReward = BNe18(100);
-    const minPrice = BNe18(1);
-    const maxPrice = BNe18(10);
+    const tickSpacing = getTickSpacing(FeeAmount.MEDIUM);
+    const minTick = getMinTick(tickSpacing);
+    const maxTick = getMaxTick(tickSpacing);
     const erc20Helper = new ERC20Helper();
     const accounts = new AccountFixture(wallets, provider)
     const gov = accounts.goverance();
@@ -81,8 +85,8 @@ describe('unittest/Incentive', () => {
             await context.staker.connect(gov).createIncentive(
                 incentiveKey,
                 totalReward,
-                minPrice,
-                maxPrice
+                minTick,
+                maxTick
             );
             const incentive = await context.staker.connect(gov).incentives(_incentiveId);
             expect(incentive).to.not.equal({});
@@ -99,8 +103,8 @@ describe('unittest/Incentive', () => {
             await expect(context.staker.connect(lpUser0).createIncentive(
                 incentiveKey,
                 totalReward,
-                minPrice,
-                maxPrice
+                minTick,
+                maxTick
             )).to.be.revertedWith('only gov');
         })
 
@@ -130,8 +134,8 @@ describe('unittest/Incentive', () => {
             await context.staker.connect(gov).createIncentive(
                 incentiveKey,
                 totalReward,
-                minPrice,
-                maxPrice
+                minTick,
+                maxTick
             );
         });
 

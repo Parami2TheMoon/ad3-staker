@@ -35,6 +35,11 @@
         "internalType": "uint160",
         "name": "secondsPerLiquidityInsideX128",
         "type": "uint160"
+      },
+      {
+        "internalType": "uint256",
+        "name": "currentTime",
+        "type": "uint256"
       }
     ],
     "name": "computeRewardAmount",
@@ -50,7 +55,7 @@
         "type": "uint160"
       }
     ],
-    "stateMutability": "view",
+    "stateMutability": "pure",
     "type": "function"
   }
 ]
