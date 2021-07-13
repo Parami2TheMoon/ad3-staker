@@ -14,8 +14,8 @@ async function main() {
     );
     console.log(contract.address);
     console.log(contract.deployTransaction.hash);
-    // 0x8B2cA342543b0f599E6D36178c269e60aa1Ee52b
-    // 0x12cd8b8f09435ecd289f4964f3d9af398b8e2d4afe99abec1327858af3af0505
+    // 0xF9178895b12de9940123BFF61BCd9d2dbb669085
+    // 0x128345767df6c0b684b5119718e7248e5d7971613455a749a4c0611a5c97a494
     await contract.deployed();
 }
 
