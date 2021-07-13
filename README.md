@@ -167,3 +167,13 @@ function getTokenId(uint256 index) external view returns (uint256 tokenId);
 ```
 
 get tokenId with index
+
+
+## APY calculate
+
+1. getTokenCount
+2. get all tokenId
+3. getRewardInfo(key, tokenId) -> (reward, secondsInX128)
+4. sum all rewards -> sumRewards
+5. diffSumRewards = (afterSumRewards - beforeSumRewards), interval maybe 15min = 15 * 60 = 900seconds, or a day
+4. APY = priceOfRewardToken * diffSumReward / interval * [ day ] * [ year ] / key.totalUnClaimRewards
