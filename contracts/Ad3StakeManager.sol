@@ -2,9 +2,10 @@
 pragma solidity ^0.7.6;
 pragma abicoder v2;
 
+import "@openzeppelin/contracts/utils/EnumerableSet.sol";
 import "@openzeppelin/contracts/math/Math.sol";
-import "@openzeppelin/contracts/math/SafeMath.sol";
 import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
+import "@openzeppelin/contracts/math/SafeMath.sol";
 
 import "@uniswap/v3-core/contracts/interfaces/callback/IUniswapV3MintCallback.sol";
 import '@uniswap/v3-core/contracts/interfaces/IUniswapV3Factory.sol';
@@ -25,6 +26,7 @@ import "./libraries/RewardMath.sol";
 contract Ad3StakeManager is IAd3StakeManager, ReentrancyGuard
 {
     using SafeMath for uint256;
+    using EnumerableSet for EnumerableSet.UintSet;
 
     IUniswapV3Factory public immutable override factory;
     INonfungiblePositionManager public immutable override nonfungiblePositionManager;
@@ -40,6 +42,8 @@ contract Ad3StakeManager is IAd3StakeManager, ReentrancyGuard
 
     /// @dev bytes32 refers to the return value of IncentiveId.compute
     mapping(bytes32 => Incentive) public override incentives;
+
+    mapping(address => EnumerableSet.UintSet) private _userTokenIds;
 
     address public gov;
     address public nextgov;
@@ -81,6 +85,17 @@ contract Ad3StakeManager is IAd3StakeManager, ReentrancyGuard
         Incentive storage incentive = incentives[IncentiveId.compute(key)];
         incentive.minTick = tickLower;
         incentive.maxTick = tickUpper;
+    }
+
+    function getUserTokenCount(address to) external view override returns (uint256)
+    {
+        return _userTokenIds[to].length();
+    }
+
+    function getTokenId(address to, uint256 index) external view override returns (uint256 tokenId)
+    {
+        require(index < _userTokenIds[to].length(), 'overflow tokenId set length');
+        return _userTokenIds[to].at(index);
     }
 
     function stakes(bytes32 incentiveId, uint256 tokenId)
@@ -238,7 +253,7 @@ contract Ad3StakeManager is IAd3StakeManager, ReentrancyGuard
                 liquidity: liquidity,
                 owner: from
             });
-
+        _userTokenIds[from].add(tokenId);
         emit TokenStaked(incentiveId, tokenId, liquidity);
     }
 
@@ -286,6 +301,7 @@ contract Ad3StakeManager is IAd3StakeManager, ReentrancyGuard
             _stakes[incentiveId][tokenId].secondsPerLiquidityInsideInitialX128 = 0;
             _stakes[incentiveId][tokenId].liquidity = 0;
             delete _stakes[incentiveId][tokenId];
+            _userTokenIds[msg.sender].remove(tokenId);
 
             reward = deposit.tickLower < incentive.minTick ? 0 : reward;
             rewards[key.rewardToken][owner] = rewards[key.rewardToken][owner].add(reward);

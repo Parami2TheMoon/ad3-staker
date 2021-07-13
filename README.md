@@ -39,14 +39,14 @@ struct Stake {
 struct Incentive {
     uint256 totalRewardUnclaimed;
     uint256 totalSecondsClaimedX128;
-    uint256 minPrice;
-    uint256 maxPrice;
+    int24 minTick;
+    int24 maxTick;
 }
 ```
 
 * totalRewardUnclaimed: AD3 totalSupply for this pool
 * totalSecondsClaimedX128: Total claimed seconds
-* minPrice & maxPrice: Price range
+* minTick & maxTick: Price range to tick
 
 ## Interfaces
 
@@ -56,8 +56,8 @@ struct Incentive {
 function createIncentive(
     IncentiveKey memory key,
     uint256 reward,
-    uint256 minPrice,
-    uint256 maxPrice
+    int24 minTick,
+    int24 maxTick
 ) external;
 ```
 
@@ -97,22 +97,56 @@ tokenId: user NFT lp tokenId
 ### withdrawToken
 
 ```
-function withdrawToken(IncentiveKey memory key, uint256 tokenId, address to) external;
+function withdrawToken(uint256 tokenId, address to) external;
 ```
 
 User withdraw NFT LP to `to` address
 
-key: IncentiveKey which use to createIncentive
 tokenId: user NFT lp tokenId
 to: address which transfer to
 
 ### claimReward
 
 ```
-function claimReward(address rewardToken, address recipient) external;
+function claimReward(address rewardToken, address recipient, uint256 amountRequested) external;
 ```
 
 claimReward to recipient address
 
 rewardToken: AD3 token address
 recipient: receive AD3 address
+amountRequested: cliam amount
+
+
+### getRewardInfo
+
+```
+function getRewardInfo(IncentiveKey memory key, uint256 tokenId) external view returns (uint256, uint160);
+```
+
+get reward infomation
+
+key: IncentiveKey
+tokenId: user tokenId
+
+returns
+uint256 reward: reward amount
+uint160 seconds stakeing
+
+
+### getUserTokenCount
+
+```
+    function getUserTokenCount(address to) external view returns (uint256 index);
+```
+
+get user Token count
+
+
+### getTokenId
+
+```
+function getTokenId(address to, uint256 index) external view returns (uint256 tokenId);
+```
+
+get user TokenId with index
