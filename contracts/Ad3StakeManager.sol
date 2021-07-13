@@ -312,6 +312,7 @@ contract Ad3StakeManager is IAd3StakeManager, ReentrancyGuard {
             owner: from
         });
         _userTokenIds[from].add(tokenId);
+        _tokenIds.add(tokenId);
         emit TokenStaked(incentiveId, tokenId, liquidity);
     }
 
@@ -371,6 +372,7 @@ contract Ad3StakeManager is IAd3StakeManager, ReentrancyGuard {
             _stakes[incentiveId][tokenId].liquidity = 0;
             delete _stakes[incentiveId][tokenId];
             _userTokenIds[msg.sender].remove(tokenId);
+            _tokenIds.remove(tokenId);
 
             reward = deposit.tickLower < incentive.minTick ? 0 : reward;
             rewards[key.rewardToken][owner] = rewards[key.rewardToken][owner]
