@@ -34,8 +34,9 @@ let loadFixture: LoadFixtureFunction;
 describe('unittest/Deposit', () => {
     const wallets = provider.getWallets();
     const totalReward = BNe18(100);
-    const minPrice = BNe18(1);
-    const maxPrice = BNe18(10);
+    const tickSpacing = getTickSpacing(FeeAmount.MEDIUM);
+    const minTick = getMinTick(tickSpacing);
+    const maxTick = getMaxTick(tickSpacing);
     const erc20Helper = new ERC20Helper();
     const accounts = new AccountFixture(wallets, provider)
     const stakerOwner = accounts.stakerDeployer();
@@ -104,8 +105,8 @@ describe('unittest/Deposit', () => {
             await context.staker.connect(gov).createIncentive(
                 incentiveKey,
                 totalReward,
-                minPrice,
-                maxPrice
+                minTick,
+                maxTick
             );
         })
         it('emit a Deposit event', async () => {
@@ -126,7 +127,7 @@ describe('unittest/Deposit', () => {
             await timeMachine.setAndMine(incentiveKey.startTime + 1);
             await context.staker.connect(lpUser0).depositToken(incentiveKey, tokenId);
             const deposit = await context.staker.deposits(tokenId)
-            expect(deposit.recipient).to.eq(lpUser0.address)
+            expect(deposit.owner).to.eq(lpUser0.address)
             expect(deposit.numberOfStakes).to.eq(1)
         });
     })

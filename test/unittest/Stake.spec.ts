@@ -34,8 +34,9 @@ let loadFixture: LoadFixtureFunction;
 describe('unittest/StakeAndWithdraw', () => {
     const wallets = provider.getWallets();
     const totalReward = BNe18(100);
-    const minPrice = BNe18(1);
-    const maxPrice = BNe18(10);
+    const tickSpacing = getTickSpacing(FeeAmount.MEDIUM);
+    const minTick = getMinTick(tickSpacing);
+    const maxTick = getMaxTick(tickSpacing);
     const erc20Helper = new ERC20Helper();
     const accounts = new AccountFixture(wallets, provider)
     const gov = accounts.goverance();
@@ -82,12 +83,9 @@ describe('unittest/StakeAndWithdraw', () => {
         await context.staker.connect(gov).createIncentive(
             incentiveKey,
             totalReward,
-            minPrice,
-            maxPrice
+            minTick,
+            maxTick
         );
-
-        // add Range to staker
-        await context.staker.connect(gov).addRange(pool01, 100, 120);
 
         // setup NFT
         await erc20Helper.ensureBalanceAndApprovals(
@@ -192,7 +190,7 @@ describe('unittest/StakeAndWithdraw', () => {
             expect((await context.staker.stakes(incentiveId, tokenId)).secondsPerLiquidityInsideInitialX128).to.eq(0);
             expect(await context.nft.ownerOf(tokenId)).to.eq(context.staker.address);
 
-            await context.staker.connect(lpUser0).withdrawToken(incentiveKey, tokenId, lpUser0.address);
+            await context.staker.connect(lpUser0).withdrawToken(tokenId, lpUser0.address);
             expect(await context.nft.ownerOf(tokenId)).to.eq(lpUser0.address);
         });
     });
@@ -207,7 +205,7 @@ describe('unittest/StakeAndWithdraw', () => {
             const stake = await context.staker.stakes(incentiveId, tokenId);
             await provider.send('evm_mine', [incentiveKey.startTime + 100])
 
-            const { reward, secondsInsideX128} = await context.staker.connect(lpUser0).getRewardAmount(incentiveKey, tokenId)
+            const { reward, secondsInsideX128} = await context.staker.connect(lpUser0).getRewardInfo(incentiveKey, tokenId)
             const { tickLower, tickUpper } = await context.nft.positions(tokenId)
             const secondsPerLiquidityInsideX128 = (await context.pool.connect(lpUser0).snapshotCumulativesInside(tickLower, tickUpper))
                                                     .secondsPerLiquidityInsideX128
@@ -221,7 +219,7 @@ describe('unittest/StakeAndWithdraw', () => {
         it('returns 0 when cancel incentive', async () => {
             await timeMachine.set(incentiveKey.endTime + 1);
             await context.staker.connect(gov).cancelIncentive(incentiveKey, lpUser1.address);
-            const { reward } = await context.staker.connect(lpUser0).getRewardAmount(incentiveKey, tokenId);
+            const { reward } = await context.staker.connect(lpUser0).getRewardInfo(incentiveKey, tokenId);
             expect(reward).to.eq(0);
         })
     });
@@ -235,14 +233,14 @@ describe('unittest/StakeAndWithdraw', () => {
         });
         it('emits RewardClaimed event', async () => {
             const claimable = await context.staker.connect(lpUser0).rewards(rewardToken, recipient);
-            expect(context.staker.connect(lpUser0).claimReward(rewardToken, recipient))
+            expect(context.staker.connect(lpUser0).claimReward(rewardToken, recipient, claimable))
                 .to.emit(context.staker, 'RewardClaimed')
-                .withArgs(rewardToken, recipient, claimable);
+                .withArgs(recipient, claimable);
         });
         it('transfer reward and check _rewards sets zero', async () => {
             const balance = await context.rewardToken.balanceOf(recipient);
             const claimable = await context.staker.connect(lpUser0).rewards(rewardToken, recipient);
-            await context.staker.connect(lpUser0).claimReward(rewardToken, recipient)
+            await context.staker.connect(lpUser0).claimReward(rewardToken, recipient, claimable)
             expect(await context.rewardToken.balanceOf(recipient)).to.equal(balance.add(claimable));
             expect(await context.staker.rewards(rewardToken, recipient)).to.eq(0);
         })

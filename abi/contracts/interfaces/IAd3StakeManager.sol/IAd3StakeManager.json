@@ -4,31 +4,6 @@
     "inputs": [
       {
         "indexed": true,
-        "internalType": "address",
-        "name": "poolToken",
-        "type": "address"
-      },
-      {
-        "indexed": true,
-        "internalType": "int24",
-        "name": "tickLower",
-        "type": "int24"
-      },
-      {
-        "indexed": true,
-        "internalType": "int24",
-        "name": "tickUpper",
-        "type": "int24"
-      }
-    ],
-    "name": "AddRange",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": true,
         "internalType": "bytes32",
         "name": "incentiveId",
         "type": "bytes32"
@@ -48,7 +23,7 @@
     "inputs": [
       {
         "indexed": true,
-        "internalType": "contract IERC20",
+        "internalType": "address",
         "name": "rewardToken",
         "type": "address"
       },
@@ -86,13 +61,7 @@
       {
         "indexed": true,
         "internalType": "address",
-        "name": "rewardToken",
-        "type": "address"
-      },
-      {
-        "indexed": true,
-        "internalType": "address",
-        "name": "recipient",
+        "name": "to",
         "type": "address"
       },
       {
@@ -173,18 +142,12 @@
     "inputs": [
       {
         "indexed": true,
-        "internalType": "bytes32",
-        "name": "incentiveId",
-        "type": "bytes32"
-      },
-      {
-        "indexed": true,
         "internalType": "uint256",
         "name": "tokenId",
         "type": "uint256"
       },
       {
-        "indexed": false,
+        "indexed": true,
         "internalType": "address",
         "name": "to",
         "type": "address"
@@ -196,32 +159,9 @@
   {
     "inputs": [
       {
-        "internalType": "address",
-        "name": "pool",
-        "type": "address"
-      },
-      {
-        "internalType": "int24",
-        "name": "tickLower",
-        "type": "int24"
-      },
-      {
-        "internalType": "int24",
-        "name": "tickUpper",
-        "type": "int24"
-      }
-    ],
-    "name": "addRange",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
         "components": [
           {
-            "internalType": "contract IERC20",
+            "internalType": "address",
             "name": "rewardToken",
             "type": "address"
           },
@@ -247,7 +187,7 @@
       },
       {
         "internalType": "address",
-        "name": "recipient",
+        "name": "refundee",
         "type": "address"
       }
     ],
@@ -260,37 +200,18 @@
     "inputs": [
       {
         "internalType": "address",
-        "name": "pool",
-        "type": "address"
-      }
-    ],
-    "name": "checkRange",
-    "outputs": [
-      {
-        "internalType": "int24",
-        "name": "",
-        "type": "int24"
-      },
-      {
-        "internalType": "int24",
-        "name": "",
-        "type": "int24"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
         "name": "rewardToken",
         "type": "address"
       },
       {
         "internalType": "address",
-        "name": "recipient",
+        "name": "to",
         "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "amountRequested",
+        "type": "uint256"
       }
     ],
     "name": "claimReward",
@@ -303,7 +224,7 @@
       {
         "components": [
           {
-            "internalType": "contract IERC20",
+            "internalType": "address",
             "name": "rewardToken",
             "type": "address"
           },
@@ -333,14 +254,14 @@
         "type": "uint256"
       },
       {
-        "internalType": "uint256",
-        "name": "minPrice",
-        "type": "uint256"
+        "internalType": "int24",
+        "name": "minTick",
+        "type": "int24"
       },
       {
-        "internalType": "uint256",
-        "name": "maxPrice",
-        "type": "uint256"
+        "internalType": "int24",
+        "name": "maxTick",
+        "type": "int24"
       }
     ],
     "name": "createIncentive",
@@ -353,7 +274,7 @@
       {
         "components": [
           {
-            "internalType": "contract IERC20",
+            "internalType": "address",
             "name": "rewardToken",
             "type": "address"
           },
@@ -400,13 +321,23 @@
     "outputs": [
       {
         "internalType": "address",
-        "name": "recipient",
+        "name": "owner",
         "type": "address"
       },
       {
-        "internalType": "uint256",
+        "internalType": "uint96",
         "name": "numberOfStakes",
-        "type": "uint256"
+        "type": "uint96"
+      },
+      {
+        "internalType": "int24",
+        "name": "tickLower",
+        "type": "int24"
+      },
+      {
+        "internalType": "int24",
+        "name": "tickUpper",
+        "type": "int24"
       }
     ],
     "stateMutability": "view",
@@ -430,7 +361,7 @@
       {
         "components": [
           {
-            "internalType": "contract IERC20",
+            "internalType": "address",
             "name": "rewardToken",
             "type": "address"
           },
@@ -460,7 +391,7 @@
         "type": "uint256"
       }
     ],
-    "name": "getRewardAmount",
+    "name": "getRewardInfo",
     "outputs": [
       {
         "internalType": "uint256",
@@ -471,6 +402,120 @@
         "internalType": "uint160",
         "name": "",
         "type": "uint160"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "index",
+        "type": "uint256"
+      }
+    ],
+    "name": "getTokenId",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "tokenId",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "to",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "index",
+        "type": "uint256"
+      }
+    ],
+    "name": "getTokenId",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "tokenId",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "getTokenIdCount",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "index",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "to",
+        "type": "address"
+      }
+    ],
+    "name": "getUserTokenIdCount",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "index",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bytes32",
+        "name": "incentiveId",
+        "type": "bytes32"
+      }
+    ],
+    "name": "incentives",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "totalRewardUnclaimed",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint160",
+        "name": "totalSecondsClaimedX128",
+        "type": "uint160"
+      },
+      {
+        "internalType": "uint96",
+        "name": "numberOfStakes",
+        "type": "uint96"
+      },
+      {
+        "internalType": "int24",
+        "name": "minTick",
+        "type": "int24"
+      },
+      {
+        "internalType": "int24",
+        "name": "maxTick",
+        "type": "int24"
       }
     ],
     "stateMutability": "view",
@@ -532,7 +577,7 @@
       },
       {
         "internalType": "address",
-        "name": "owner",
+        "name": "recipient",
         "type": "address"
       }
     ],
@@ -564,7 +609,7 @@
     "outputs": [
       {
         "internalType": "address",
-        "name": "stakeOwner",
+        "name": "owner",
         "type": "address"
       },
       {
@@ -586,7 +631,7 @@
       {
         "components": [
           {
-            "internalType": "contract IERC20",
+            "internalType": "address",
             "name": "rewardToken",
             "type": "address"
           },
@@ -626,7 +671,7 @@
       {
         "components": [
           {
-            "internalType": "contract IERC20",
+            "internalType": "address",
             "name": "rewardToken",
             "type": "address"
           },
@@ -650,6 +695,24 @@
         "name": "key",
         "type": "tuple"
       },
+      {
+        "internalType": "int24",
+        "name": "tickLower",
+        "type": "int24"
+      },
+      {
+        "internalType": "int24",
+        "name": "tickUpper",
+        "type": "int24"
+      }
+    ],
+    "name": "updateRange",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
       {
         "internalType": "uint256",
         "name": "tokenId",
