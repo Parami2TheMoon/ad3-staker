@@ -1,6 +1,6 @@
 import { Fixture } from 'ethereum-waffle';
 import { constants, BigNumber } from 'ethers';
-import { ethers, waffle } from 'hardhat';
+import { ethers, waffle, upgrades } from 'hardhat';
 
 import UniswapV3Pool from '@uniswap/v3-core/artifacts/contracts/UniswapV3Pool.sol/UniswapV3Pool.json';
 import UniswapV3FactoryJson from '@uniswap/v3-core/artifacts/contracts/UniswapV3Factory.sol/UniswapV3Factory.json';
@@ -216,7 +216,7 @@ export const UniswapFixture: Fixture<UniswapFixtureType> = async (wallets, provi
     const signer = accounts.stakerDeployer()
     const gov = accounts.goverance();
     const stakerFactory = await ethers.getContractFactory('Ad3StakeManager', signer);
-    const staker =(await stakerFactory.deploy(gov.address, factory.address, nft.address)) as Ad3StakeManager;
+    const staker = (await upgrades.deployProxy(stakerFactory, [gov.address, factory.address, nft.address])) as Ad3StakeManager;
     const testIncentiveIdFactory = await ethers.getContractFactory('TestIncentiveId', signer);
     const testIncentiveId = (await testIncentiveIdFactory.deploy()) as TestIncentiveId;
 

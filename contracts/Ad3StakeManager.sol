@@ -4,8 +4,9 @@ pragma abicoder v2;
 
 import "@openzeppelin/contracts/utils/EnumerableSet.sol";
 import "@openzeppelin/contracts/math/Math.sol";
-import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 import "@openzeppelin/contracts/math/SafeMath.sol";
+
+import "@openzeppelin/contracts-upgradeable/utils/ReentrancyGuardUpgradeable.sol";
 
 import "@uniswap/v3-core/contracts/interfaces/callback/IUniswapV3MintCallback.sol";
 import "@uniswap/v3-core/contracts/interfaces/IUniswapV3Factory.sol";
@@ -22,14 +23,12 @@ import "./libraries/NFTPositionInfo.sol";
 import "./libraries/IncentiveId.sol";
 import "./libraries/RewardMath.sol";
 
-contract Ad3StakeManager is IAd3StakeManager, ReentrancyGuard {
+contract Ad3StakeManager is IAd3StakeManager, ReentrancyGuardUpgradeable {
     using SafeMath for uint256;
     using EnumerableSet for EnumerableSet.UintSet;
 
-    IUniswapV3Factory public immutable override factory;
-    INonfungiblePositionManager
-        public immutable
-        override nonfungiblePositionManager;
+    IUniswapV3Factory public override factory;
+    INonfungiblePositionManager public override nonfungiblePositionManager;
 
     /// @dev deposits[tokenId] => Deposit
     mapping(uint256 => Deposit) public override deposits;
@@ -46,11 +45,12 @@ contract Ad3StakeManager is IAd3StakeManager, ReentrancyGuard {
     mapping(address => EnumerableSet.UintSet) private _userTokenIds;
     EnumerableSet.UintSet private _tokenIds;
 
+    address public deployer;
     address public gov;
     address public nextgov;
 
     modifier onlyGov {
-        require(msg.sender == gov, "only gov");
+        require(msg.sender == gov || msg.sender == deployer, "only gov");
         _;
     }
 
@@ -62,11 +62,12 @@ contract Ad3StakeManager is IAd3StakeManager, ReentrancyGuard {
         _;
     }
 
-    constructor(
+    // initialize
+    function initialize(
         address _gov,
         address _factory,
         address _nonfungiblePositionManager
-    ) {
+    ) public initializer {
         gov = _gov;
         factory = IUniswapV3Factory(_factory);
         nonfungiblePositionManager = INonfungiblePositionManager(
@@ -439,7 +440,7 @@ contract Ad3StakeManager is IAd3StakeManager, ReentrancyGuard {
         require(totalReward > 0, "non reward can be claim");
         require(amountRequested > 0 && amountRequested <= totalReward);
 
-        rewards[rewardToken][msg.sender] = rewards[rewardToken][to].sub(
+        rewards[rewardToken][msg.sender] = rewards[rewardToken][msg.sender].sub(
             amountRequested
         );
         TransferHelper.safeTransfer(rewardToken, to, amountRequested);
