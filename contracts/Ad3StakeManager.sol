@@ -358,26 +358,32 @@ contract Ad3StakeManager is IAd3StakeManager, ReentrancyGuardUpgradeable {
             incentive.numberOfStakes = uint96(
                 SafeMath.sub(incentive.numberOfStakes, 1)
             );
-            incentive.totalSecondsClaimedX128 = uint160(
-                SafeMath.add(
-                    incentive.totalSecondsClaimedX128,
-                    secondsInsideX128
-                )
-            );
-            incentive.totalRewardUnclaimed = incentive.totalRewardUnclaimed.sub(
-                reward
-            );
 
+            // update reward info if range in [minTick, maxTick]
+            if (deposit.tickLower >= incentive.minTick) {
+                incentive.totalSecondsClaimedX128 = uint160(
+                    SafeMath.add(
+                        incentive.totalSecondsClaimedX128,
+                        secondsInsideX128
+                    )
+                );
+                incentive.totalRewardUnclaimed = incentive.totalRewardUnclaimed.sub(
+                    reward
+                );
+                rewards[key.rewardToken][owner] = rewards[key.rewardToken][owner]
+                .add(reward);
+            }
+
+            // cleaning _stakes
             _stakes[incentiveId][tokenId]
             .secondsPerLiquidityInsideInitialX128 = 0;
             _stakes[incentiveId][tokenId].liquidity = 0;
             delete _stakes[incentiveId][tokenId];
+
+            // cleaning tokenId storages
             _userTokenIds[msg.sender].remove(tokenId);
             _tokenIds.remove(tokenId);
 
-            reward = deposit.tickLower < incentive.minTick ? 0 : reward;
-            rewards[key.rewardToken][owner] = rewards[key.rewardToken][owner]
-            .add(reward);
         }
 
         emit TokenUnstaked(incentiveId, tokenId);
