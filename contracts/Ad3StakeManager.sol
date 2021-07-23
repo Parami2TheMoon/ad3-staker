@@ -400,7 +400,7 @@ contract Ad3StakeManager is IAd3StakeManager, ReentrancyGuardUpgradeable {
     }
 
     function getRewardInfo(IncentiveKey memory key, uint256 tokenId)
-        external
+        public
         view
         override
         returns (uint256 reward, uint160 secondsInsideX128)
@@ -412,8 +412,8 @@ contract Ad3StakeManager is IAd3StakeManager, ReentrancyGuardUpgradeable {
             uint128 liquidity
         ) = stakes(incentiveId, tokenId);
 
-        Incentive memory incentive = incentives[incentiveId];
-        Deposit memory deposit = deposits[tokenId];
+        Incentive storage incentive = incentives[incentiveId];
+        Deposit storage deposit = deposits[tokenId];
 
         (, uint160 secondsPerLiquidityInsideX128, ) = key
         .pool
@@ -432,50 +432,6 @@ contract Ad3StakeManager is IAd3StakeManager, ReentrancyGuardUpgradeable {
         reward = deposit.tickLower < incentive.minTick ? 0 : reward;
     }
 
-    function _updateRewards(IncentiveKey memory key, uint256 tokenId) internal
-    {
-        bytes32 incentiveId = IncentiveId.compute(key);
-        (
-            address owner,
-            uint160 secondsPerLiquidityInsideInitialX128,
-            uint128 liquidity
-        ) = stakes(incentiveId, tokenId);
-        Deposit storage deposit = deposits[tokenId];
-        Incentive storage incentive = incentives[incentiveId];
-        require(deposit.owner == msg.sender, "only owner can get reward");
-        require(owner == msg.sender, "only owner can get reward");
-
-        (, uint160 secondsPerLiquidityInsideX128, ) = key
-        .pool
-        .snapshotCumulativesInside(deposit.tickLower, deposit.tickUpper);
-
-        (uint256 reward, uint160 secondsInsideX128) = RewardMath.computeRewardAmount(
-            incentive.totalRewardUnclaimed,
-            incentive.totalSecondsClaimedX128,
-            key.startTime,
-            key.endTime,
-            liquidity,
-            secondsPerLiquidityInsideInitialX128,
-            secondsPerLiquidityInsideX128,
-            block.timestamp
-        );
-
-        // update reward info if range in [minTick, maxTick]
-        if (deposit.tickLower >= incentive.minTick) {
-            incentive.totalSecondsClaimedX128 = uint160(
-                SafeMath.add(
-                    incentive.totalSecondsClaimedX128,
-                    secondsInsideX128
-                )
-            );
-            incentive.totalRewardUnclaimed = incentive.totalRewardUnclaimed.sub(
-                reward
-            );
-            rewards[key.rewardToken][owner] = rewards[key.rewardToken][owner]
-            .add(reward);
-        }
-    }
-
     function claimReward(
         IncentiveKey memory key,
         uint256 tokenId,
@@ -483,15 +439,24 @@ contract Ad3StakeManager is IAd3StakeManager, ReentrancyGuardUpgradeable {
         uint256 amountRequested
     ) external override nonReentrant {
         address rewardToken = key.rewardToken;
-        _updateRewards(key, tokenId);
-
         uint256 totalReward = rewards[rewardToken][msg.sender];
+        (uint256 reward, uint160 secondsInsideX128) = getRewardInfo(key, tokenId);
+        if (reward >0) {
+            bytes32 incentiveId = IncentiveId.compute(key);
+            Incentive storage incentive = incentives[incentiveId];
+            incentive.totalSecondsClaimedX128 = uint160(
+                SafeMath.add(
+                    incentive.totalSecondsClaimedX128,
+                    secondsInsideX128
+                )
+            );
+            incentive.totalRewardUnclaimed = incentive.totalRewardUnclaimed.sub(reward);
+            totalReward = totalReward.add(reward);
+        }
         require(totalReward > 0, "non reward can be claim");
         require(amountRequested > 0 && amountRequested <= totalReward);
 
-        rewards[rewardToken][msg.sender] = rewards[rewardToken][msg.sender].sub(
-            amountRequested
-        );
+        rewards[rewardToken][msg.sender] = totalReward.sub(amountRequested);
         TransferHelper.safeTransfer(rewardToken, to, amountRequested);
         emit RewardClaimed(to, amountRequested);
     }

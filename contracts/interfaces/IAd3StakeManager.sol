@@ -235,5 +235,5 @@ interface IAd3StakeManager is IERC721Receiver {
     /// @notice Event emitted when a reward token has been claimed
     /// @param to The address where claimed rewards were sent to
     /// @param reward The amount of reward tokens claimed
-    event RewardClaimed(address indexed to, uint256 reward);
+    event RewardClaimed(address indexed to, uint256 indexed reward);
 }

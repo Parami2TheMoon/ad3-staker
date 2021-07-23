@@ -66,9 +66,9 @@
     }
   ],
   "impls": {
-    "8db22bd9b024b02ffebd3677692f18b8c01c8879eaaf77f6650975442a89022f": {
+    "19d8ddae64257974f3149201d55cf27e11bc692e30abaae624c78389348a9938": {
       "address": "0x057ef64E23666F000b34aE31332854aCBd1c8544",
-      "txHash": "0x2cfc4a5392c8783f25a9f68a1aceea5b2b0ab416d238d1c4257ce3136c935269",
+      "txHash": "0xc85144fb7fc4317b1a73951a2e9eedb5c8b8be1b79ff2af583404b66599d36a9",
       "layout": {
         "storage": [
           {
@@ -110,13 +110,13 @@
           {
             "contract": "Ad3StakeManager",
             "label": "deposits",
-            "type": "t_mapping(t_uint256,t_struct(Deposit)5073_storage)",
+            "type": "t_mapping(t_uint256,t_struct(Deposit)4986_storage)",
             "src": "contracts/Ad3StakeManager.sol:34"
           },
           {
             "contract": "Ad3StakeManager",
             "label": "_stakes",
-            "type": "t_mapping(t_bytes32,t_mapping(t_uint256,t_struct(Stake)5053_storage))",
+            "type": "t_mapping(t_bytes32,t_mapping(t_uint256,t_struct(Stake)4966_storage))",
             "src": "contracts/Ad3StakeManager.sol:37"
           },
           {
@@ -128,7 +128,7 @@
           {
             "contract": "Ad3StakeManager",
             "label": "incentives",
-            "type": "t_mapping(t_bytes32,t_struct(Incentive)5064_storage)",
+            "type": "t_mapping(t_bytes32,t_struct(Incentive)4977_storage)",
             "src": "contracts/Ad3StakeManager.sol:43"
           },
           {
@@ -169,13 +169,13 @@
           "t_contract(INonfungiblePositionManager)3063": {
             "label": "contract INonfungiblePositionManager"
           },
-          "t_mapping(t_uint256,t_struct(Deposit)5073_storage)": {
+          "t_mapping(t_uint256,t_struct(Deposit)4986_storage)": {
             "label": "mapping(uint256 => struct IAd3StakeManager.Deposit)"
           },
           "t_uint256": {
             "label": "uint256"
           },
-          "t_struct(Deposit)5073_storage": {
+          "t_struct(Deposit)4986_storage": {
             "label": "struct IAd3StakeManager.Deposit",
             "members": [
               {
@@ -205,16 +205,16 @@
           "t_int24": {
             "label": "int24"
           },
-          "t_mapping(t_bytes32,t_mapping(t_uint256,t_struct(Stake)5053_storage))": {
+          "t_mapping(t_bytes32,t_mapping(t_uint256,t_struct(Stake)4966_storage))": {
             "label": "mapping(bytes32 => mapping(uint256 => struct IAd3StakeManager.Stake))"
           },
           "t_bytes32": {
             "label": "bytes32"
           },
-          "t_mapping(t_uint256,t_struct(Stake)5053_storage)": {
+          "t_mapping(t_uint256,t_struct(Stake)4966_storage)": {
             "label": "mapping(uint256 => struct IAd3StakeManager.Stake)"
           },
-          "t_struct(Stake)5053_storage": {
+          "t_struct(Stake)4966_storage": {
             "label": "struct IAd3StakeManager.Stake",
             "members": [
               {
@@ -243,10 +243,10 @@
           "t_mapping(t_address,t_uint256)": {
             "label": "mapping(address => uint256)"
           },
-          "t_mapping(t_bytes32,t_struct(Incentive)5064_storage)": {
+          "t_mapping(t_bytes32,t_struct(Incentive)4977_storage)": {
             "label": "mapping(bytes32 => struct IAd3StakeManager.Incentive)"
           },
-          "t_struct(Incentive)5064_storage": {
+          "t_struct(Incentive)4977_storage": {
             "label": "struct IAd3StakeManager.Incentive",
             "members": [
               {

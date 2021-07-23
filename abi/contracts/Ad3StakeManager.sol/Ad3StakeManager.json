@@ -65,7 +65,7 @@
         "type": "address"
       },
       {
-        "indexed": false,
+        "indexed": true,
         "internalType": "uint256",
         "name": "reward",
         "type": "uint256"
