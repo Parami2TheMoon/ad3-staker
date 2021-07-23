@@ -317,7 +317,7 @@ contract Ad3StakeManager is IAd3StakeManager, ReentrancyGuardUpgradeable {
         emit TokenStaked(incentiveId, tokenId, liquidity);
     }
 
-    function unstakeToken(IncentiveKey memory key, uint256 tokenId)
+    function unstakeToken(IncentiveKey memory key, uint256 tokenId, address to)
         external
         override
         nonReentrant
@@ -352,8 +352,8 @@ contract Ad3StakeManager is IAd3StakeManager, ReentrancyGuardUpgradeable {
         );
 
         {
-            deposits[tokenId].numberOfStakes = uint96(
-                SafeMath.sub(deposits[tokenId].numberOfStakes, 1)
+            deposit.numberOfStakes = uint96(
+                SafeMath.sub(deposit.numberOfStakes, 1)
             );
             incentive.numberOfStakes = uint96(
                 SafeMath.sub(incentive.numberOfStakes, 1)
@@ -383,17 +383,13 @@ contract Ad3StakeManager is IAd3StakeManager, ReentrancyGuardUpgradeable {
             // cleaning tokenId storages
             _userTokenIds[msg.sender].remove(tokenId);
             _tokenIds.remove(tokenId);
-
+            _withdrawToken(tokenId, to);
         }
 
         emit TokenUnstaked(incentiveId, tokenId);
     }
 
-    function withdrawToken(uint256 tokenId, address to) external override {
-        require(
-            deposits[tokenId].owner == msg.sender,
-            "only owner can withdraw token"
-        );
+    function _withdrawToken(uint256 tokenId, address to) internal {
         require(
             deposits[tokenId].numberOfStakes == 0,
             "nonzero number of stakes"
@@ -401,7 +397,6 @@ contract Ad3StakeManager is IAd3StakeManager, ReentrancyGuardUpgradeable {
 
         delete deposits[tokenId];
         nonfungiblePositionManager.safeTransferFrom(address(this), to, tokenId);
-        emit TokenWithdraw(tokenId, to);
     }
 
     function getRewardInfo(IncentiveKey memory key, uint256 tokenId)
@@ -437,11 +432,59 @@ contract Ad3StakeManager is IAd3StakeManager, ReentrancyGuardUpgradeable {
         reward = deposit.tickLower < incentive.minTick ? 0 : reward;
     }
 
+    function _updateRewards(IncentiveKey memory key, uint256 tokenId) internal
+    {
+        bytes32 incentiveId = IncentiveId.compute(key);
+        (
+            address owner,
+            uint160 secondsPerLiquidityInsideInitialX128,
+            uint128 liquidity
+        ) = stakes(incentiveId, tokenId);
+        Deposit storage deposit = deposits[tokenId];
+        Incentive storage incentive = incentives[incentiveId];
+        require(deposit.owner == msg.sender, "only owner can get reward");
+        require(owner == msg.sender, "only owner can get reward");
+
+        (, uint160 secondsPerLiquidityInsideX128, ) = key
+        .pool
+        .snapshotCumulativesInside(deposit.tickLower, deposit.tickUpper);
+
+        (uint256 reward, uint160 secondsInsideX128) = RewardMath.computeRewardAmount(
+            incentive.totalRewardUnclaimed,
+            incentive.totalSecondsClaimedX128,
+            key.startTime,
+            key.endTime,
+            liquidity,
+            secondsPerLiquidityInsideInitialX128,
+            secondsPerLiquidityInsideX128,
+            block.timestamp
+        );
+
+        // update reward info if range in [minTick, maxTick]
+        if (deposit.tickLower >= incentive.minTick) {
+            incentive.totalSecondsClaimedX128 = uint160(
+                SafeMath.add(
+                    incentive.totalSecondsClaimedX128,
+                    secondsInsideX128
+                )
+            );
+            incentive.totalRewardUnclaimed = incentive.totalRewardUnclaimed.sub(
+                reward
+            );
+            rewards[key.rewardToken][owner] = rewards[key.rewardToken][owner]
+            .add(reward);
+        }
+    }
+
     function claimReward(
-        address rewardToken,
+        IncentiveKey memory key,
+        uint256 tokenId,
         address to,
         uint256 amountRequested
     ) external override nonReentrant {
+        address rewardToken = key.rewardToken;
+        _updateRewards(key, tokenId);
+
         uint256 totalReward = rewards[rewardToken][msg.sender];
         require(totalReward > 0, "non reward can be claim");
         require(amountRequested > 0 && amountRequested <= totalReward);

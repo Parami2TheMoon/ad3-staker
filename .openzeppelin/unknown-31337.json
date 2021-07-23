@@ -31,44 +31,44 @@
   "proxies": [
     {
       "address": "0xCE3478A9E0167a6Bc5716DC39DbbbfAc38F27623",
-      "txHash": "0x5d1c367d37a304eb1503aad3b24473545c796ec7be8511919a91fca6a151d3db",
+      "txHash": "0x93b2cce66801ce7a86ccf4c64bb6710a56c823c7cd4298da2d8e68dfad7e31c4",
       "kind": "transparent"
     },
     {
       "address": "0x9A676e781A523b5d0C0e43731313A708CB607508",
-      "txHash": "0x6a9be4e21f76c27b0605878ef594d7fc74c6ae5b78a42679c474fdf193ce87b6",
+      "txHash": "0x81039a8ab5e7aaa0c828656f2518813e6d0674b080136bbe666a91f1d547045f",
       "kind": "transparent"
     },
     {
       "address": "0xe4EB561155AFCe723bB1fF8606Fbfe9b28d5d38D",
-      "txHash": "0xa72a1b21b92b6781b84d2c4d76eeab9815bf1be78574f036fba08914798fd66f",
+      "txHash": "0x3ae1356afa2b00a63cda2698f54679dd64540085e3dd6fde2212de43cfd53ce7",
       "kind": "transparent"
     },
     {
       "address": "0x67d269191c92Caf3cD7723F116c85e6E9bf55933",
-      "txHash": "0xf23311ab48ccffcb41c55b59d3daa3f9ed7f469f412409ddb307e7176277454c",
+      "txHash": "0xedfea0c0c42b286461b1bfd829afec24716a9e96bb2f8e8920e4ebad4f1f3400",
       "kind": "transparent"
     },
     {
       "address": "0x673cD70FA883394a1f3DEb3221937Ceb7C2618D7",
-      "txHash": "0x6c56b236a71cb69e04ca9f0631035dbdbfcbdc0ed23b21466a0eebdfbb99bc80",
+      "txHash": "0x68751a71c97be98b5aa944b8083243f5533dfeeaa4957de7957d8b1f30afb663",
       "kind": "transparent"
     },
     {
       "address": "0x71F043a9072b5ec430C0a1DD766E1C8C613eDc5d",
-      "txHash": "0x3d22b09c2ce587debbbbc309f645a12b43a2d36d6d02fb9a968d7cbff94c9997",
+      "txHash": "0xe776e532e337d5929dae1915ab0e0dc12b9b0c24ac69e98b2b358dddfe36c733",
       "kind": "transparent"
     },
     {
       "address": "0xd2D7715BAe07e5B9d7c0Ec0b671B9bAD6b9dBEBb",
-      "txHash": "0x35f42e73d78b05b619e653c8ef80a3b43a89251ad4e1e4325ecd4e55ecf9b652",
+      "txHash": "0x7a063afe69fe6c3c883f18644c5ddbea3eb03cd2094ea36a1bff6e6203b8f205",
       "kind": "transparent"
     }
   ],
   "impls": {
-    "95b547d2bcdf0e938edfd9679714d2c9bdbfe83d9666c9a899809b096160fd96": {
+    "8db22bd9b024b02ffebd3677692f18b8c01c8879eaaf77f6650975442a89022f": {
       "address": "0x057ef64E23666F000b34aE31332854aCBd1c8544",
-      "txHash": "0x60ea2e96c56c591d62a84b478440b43ae1a83451722940becd5361a00f304268",
+      "txHash": "0x2cfc4a5392c8783f25a9f68a1aceea5b2b0ab416d238d1c4257ce3136c935269",
       "layout": {
         "storage": [
           {
@@ -110,56 +110,56 @@
           {
             "contract": "Ad3StakeManager",
             "label": "deposits",
-            "type": "t_mapping(t_uint256,t_struct(Deposit)4943_storage)",
-            "src": "contracts/Ad3StakeManager.sol:36"
+            "type": "t_mapping(t_uint256,t_struct(Deposit)5073_storage)",
+            "src": "contracts/Ad3StakeManager.sol:34"
           },
           {
             "contract": "Ad3StakeManager",
             "label": "_stakes",
-            "type": "t_mapping(t_bytes32,t_mapping(t_uint256,t_struct(Stake)4923_storage))",
-            "src": "contracts/Ad3StakeManager.sol:39"
+            "type": "t_mapping(t_bytes32,t_mapping(t_uint256,t_struct(Stake)5053_storage))",
+            "src": "contracts/Ad3StakeManager.sol:37"
           },
           {
             "contract": "Ad3StakeManager",
             "label": "rewards",
             "type": "t_mapping(t_address,t_mapping(t_address,t_uint256))",
-            "src": "contracts/Ad3StakeManager.sol:42"
+            "src": "contracts/Ad3StakeManager.sol:40"
           },
           {
             "contract": "Ad3StakeManager",
             "label": "incentives",
-            "type": "t_mapping(t_bytes32,t_struct(Incentive)4934_storage)",
-            "src": "contracts/Ad3StakeManager.sol:45"
+            "type": "t_mapping(t_bytes32,t_struct(Incentive)5064_storage)",
+            "src": "contracts/Ad3StakeManager.sol:43"
           },
           {
             "contract": "Ad3StakeManager",
             "label": "_userTokenIds",
             "type": "t_mapping(t_address,t_struct(UintSet)1474_storage)",
-            "src": "contracts/Ad3StakeManager.sol:47"
+            "src": "contracts/Ad3StakeManager.sol:45"
           },
           {
             "contract": "Ad3StakeManager",
             "label": "_tokenIds",
             "type": "t_struct(UintSet)1474_storage",
-            "src": "contracts/Ad3StakeManager.sol:48"
+            "src": "contracts/Ad3StakeManager.sol:46"
           },
           {
             "contract": "Ad3StakeManager",
             "label": "deployer",
             "type": "t_address",
-            "src": "contracts/Ad3StakeManager.sol:50"
+            "src": "contracts/Ad3StakeManager.sol:48"
           },
           {
             "contract": "Ad3StakeManager",
             "label": "gov",
             "type": "t_address",
-            "src": "contracts/Ad3StakeManager.sol:51"
+            "src": "contracts/Ad3StakeManager.sol:49"
           },
           {
             "contract": "Ad3StakeManager",
             "label": "nextgov",
             "type": "t_address",
-            "src": "contracts/Ad3StakeManager.sol:52"
+            "src": "contracts/Ad3StakeManager.sol:50"
           }
         ],
         "types": {
@@ -169,13 +169,13 @@
           "t_contract(INonfungiblePositionManager)3063": {
             "label": "contract INonfungiblePositionManager"
           },
-          "t_mapping(t_uint256,t_struct(Deposit)4943_storage)": {
+          "t_mapping(t_uint256,t_struct(Deposit)5073_storage)": {
             "label": "mapping(uint256 => struct IAd3StakeManager.Deposit)"
           },
           "t_uint256": {
             "label": "uint256"
           },
-          "t_struct(Deposit)4943_storage": {
+          "t_struct(Deposit)5073_storage": {
             "label": "struct IAd3StakeManager.Deposit",
             "members": [
               {
@@ -205,16 +205,16 @@
           "t_int24": {
             "label": "int24"
           },
-          "t_mapping(t_bytes32,t_mapping(t_uint256,t_struct(Stake)4923_storage))": {
+          "t_mapping(t_bytes32,t_mapping(t_uint256,t_struct(Stake)5053_storage))": {
             "label": "mapping(bytes32 => mapping(uint256 => struct IAd3StakeManager.Stake))"
           },
           "t_bytes32": {
             "label": "bytes32"
           },
-          "t_mapping(t_uint256,t_struct(Stake)4923_storage)": {
+          "t_mapping(t_uint256,t_struct(Stake)5053_storage)": {
             "label": "mapping(uint256 => struct IAd3StakeManager.Stake)"
           },
-          "t_struct(Stake)4923_storage": {
+          "t_struct(Stake)5053_storage": {
             "label": "struct IAd3StakeManager.Stake",
             "members": [
               {
@@ -243,10 +243,10 @@
           "t_mapping(t_address,t_uint256)": {
             "label": "mapping(address => uint256)"
           },
-          "t_mapping(t_bytes32,t_struct(Incentive)4934_storage)": {
+          "t_mapping(t_bytes32,t_struct(Incentive)5064_storage)": {
             "label": "mapping(bytes32 => struct IAd3StakeManager.Incentive)"
           },
-          "t_struct(Incentive)4934_storage": {
+          "t_struct(Incentive)5064_storage": {
             "label": "struct IAd3StakeManager.Incentive",
             "members": [
               {
