@@ -28,6 +28,7 @@ interface IAd3StakeManager is IERC721Receiver {
     struct Stake {
         uint160 secondsPerLiquidityInsideInitialX128;
         uint128 liquidity;
+        uint256 lastRewards;
         address owner;
     }
 
@@ -75,7 +76,8 @@ interface IAd3StakeManager is IERC721Receiver {
         returns (
             address owner,
             uint160 secondsPerLiquidityInsideInitialX128,
-            uint128 liquidity
+            uint128 liquidity,
+            uint256 lastRewards
         );
 
     /// @notice Represents a staking incentive
@@ -187,8 +189,9 @@ interface IAd3StakeManager is IERC721Receiver {
     /// @notice Calculates the reward amount that will be received for the given stake
     /// @param key The key of the incentive
     /// @param tokenId The ID of the token
+    /// @param flag The flag get accrued reward or last reward
     /// @return reward The reward accrued to the NFT for the given incentive thus far
-    function getRewardInfo(IncentiveKey memory key, uint256 tokenId)
+    function getAccruedRewardInfo(IncentiveKey memory key, uint256 tokenId, bool flag)
         external
         view
         returns (uint256, uint160);

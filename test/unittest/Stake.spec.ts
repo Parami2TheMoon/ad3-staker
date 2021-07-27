@@ -205,7 +205,7 @@ describe('unittest/StakeAndWithdraw', () => {
             const stake = await context.staker.stakes(incentiveId, tokenId);
             await provider.send('evm_mine', [incentiveKey.startTime + 100])
 
-            const { reward, secondsInsideX128} = await context.staker.connect(lpUser0).getRewardInfo(incentiveKey, tokenId)
+            const { reward, secondsInsideX128} = await context.staker.connect(lpUser0).getAccruedRewardInfo(incentiveKey, tokenId, true)
             const { tickLower, tickUpper } = await context.nft.positions(tokenId)
             const secondsPerLiquidityInsideX128 = (await context.pool.connect(lpUser0).snapshotCumulativesInside(tickLower, tickUpper))
                                                     .secondsPerLiquidityInsideX128
@@ -219,7 +219,7 @@ describe('unittest/StakeAndWithdraw', () => {
         it('returns 0 when cancel incentive', async () => {
             await timeMachine.set(incentiveKey.endTime + 1);
             await context.staker.connect(gov).cancelIncentive(incentiveKey, lpUser1.address);
-            const { reward } = await context.staker.connect(lpUser0).getRewardInfo(incentiveKey, tokenId);
+            const { reward } = await context.staker.connect(lpUser0).getAccruedRewardInfo(incentiveKey, tokenId, true);
             expect(reward).to.eq(0);
         })
     });
@@ -233,20 +233,30 @@ describe('unittest/StakeAndWithdraw', () => {
             //await context.staker.connect(lpUser0).unstakeToken(incentiveKey, tokenId);
         });
         it('emits RewardClaimed event', async () => {
-            const { reward, secondsInsideX128} = await context.staker.connect(lpUser0).getRewardInfo(incentiveKey, tokenId)
+            const { reward, secondsInsideX128} = await context.staker.connect(lpUser0).getAccruedRewardInfo(incentiveKey, tokenId, true)
             await expect(context.staker.connect(lpUser0).claimReward(incentiveKey, tokenId, recipient, reward))
                 .to.emit(context.staker, 'RewardClaimed')
                 .withArgs(recipient, reward);
         });
-        it('transfer reward and check _rewards sets zero', async () => {
+        it('transfer reward and check _rewards', async () => {
             const balance = await context.rewardToken.balanceOf(recipient);
             expect(await context.staker.rewards(rewardToken, recipient)).to.eq(0);
-            const { reward, secondsInsideX128} = await context.staker.connect(lpUser0).getRewardInfo(incentiveKey, tokenId)
+            const { reward, secondsInsideX128} = await context.staker.connect(lpUser0).getAccruedRewardInfo(incentiveKey, tokenId, true)
             await expect(context.staker.connect(lpUser0).claimReward(incentiveKey, tokenId, recipient, reward))
                 .to.emit(context.staker, 'RewardClaimed')
                 .withArgs(recipient, reward);
             expect(await context.rewardToken.balanceOf(recipient)).to.equal(balance.add(reward));
             expect(await context.staker.rewards(rewardToken, recipient)).to.gt(0);
+        })
+        it('check stakes and lastRewards', async () => {
+            const { reward, secondsInsideX128} = await context.staker.connect(lpUser0).getAccruedRewardInfo(incentiveKey, tokenId, true)
+            await expect(context.staker.connect(lpUser0).claimReward(incentiveKey, tokenId, recipient, reward))
+                .to.emit(context.staker, 'RewardClaimed')
+                .withArgs(recipient, reward);
+            const {reward: _reward, secondsInsideX128: _secondsInsideX128} = await context.staker.connect(lpUser0).getAccruedRewardInfo(incentiveKey, tokenId, false);
+            const stake = await context.staker.stakes(incentiveId, tokenId);
+            await expect(stake.lastRewards).to.eq(reward);
+            await expect(stake.lastRewards.add(_reward)).to.gte(reward);
         })
     })
 });

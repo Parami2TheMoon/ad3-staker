@@ -138,7 +138,8 @@ contract Ad3StakeManager is IAd3StakeManager, ReentrancyGuardUpgradeable {
         returns (
             address owner,
             uint160 secondsPerLiquidityInsideInitialX128,
-            uint128 liquidity
+            uint128 liquidity,
+            uint256 lastRewards
         )
     {
         Stake memory stake = _stakes[incentiveId][tokenId];
@@ -146,6 +147,7 @@ contract Ad3StakeManager is IAd3StakeManager, ReentrancyGuardUpgradeable {
         secondsPerLiquidityInsideInitialX128 = stake
         .secondsPerLiquidityInsideInitialX128;
         liquidity = stake.liquidity;
+        lastRewards = stake.lastRewards;
     }
 
     function createIncentive(
@@ -310,11 +312,60 @@ contract Ad3StakeManager is IAd3StakeManager, ReentrancyGuardUpgradeable {
         _stakes[incentiveId][tokenId] = Stake({
             secondsPerLiquidityInsideInitialX128: secondsPerLiquidityInsideX128,
             liquidity: liquidity,
+            lastRewards: 0,
             owner: from
         });
         _userTokenIds[from].add(tokenId);
         _tokenIds.add(tokenId);
         emit TokenStaked(incentiveId, tokenId, liquidity);
+    }
+
+    function _unstakeToken(
+        Deposit storage deposit,
+        Incentive storage incentive,
+        uint256 reward,
+        uint256 lastRewards,
+        uint160 secondsInsideX128,
+        address rewardToken
+    ) internal
+    {
+        deposit.numberOfStakes = deposit.numberOfStakes > 1 ? deposit.numberOfStakes - 1 : 0;
+        incentive.numberOfStakes = deposit.numberOfStakes > 1 ? deposit.numberOfStakes - 1 : 0;
+
+        // update reward info if range in [minTick, maxTick]
+        if (deposit.tickLower >= incentive.minTick) {
+            reward = reward.sub(lastRewards);
+            incentive.totalSecondsClaimedX128 = uint160(
+                SafeMath.add(
+                    incentive.totalSecondsClaimedX128,
+                    secondsInsideX128
+                )
+            );
+            incentive.totalRewardUnclaimed = incentive.totalRewardUnclaimed.sub(
+                reward
+            );
+            rewards[rewardToken][msg.sender] = rewards[rewardToken][msg.sender]
+            .add(reward);
+        }
+    }
+
+    function _cleanStake(
+        bytes32 incentiveId,
+        uint256 tokenId,
+        address to
+    ) internal
+    {
+        // cleaning _stakes
+        _stakes[incentiveId][tokenId]
+        .secondsPerLiquidityInsideInitialX128 = 0;
+        _stakes[incentiveId][tokenId].liquidity = 0;
+        _stakes[incentiveId][tokenId].lastRewards = 0;
+        delete _stakes[incentiveId][tokenId];
+
+        // cleaning tokenId storages
+        _userTokenIds[msg.sender].remove(tokenId);
+        _tokenIds.remove(tokenId);
+        _withdrawToken(tokenId, to);
     }
 
     function unstakeToken(IncentiveKey memory key, uint256 tokenId, address to)
@@ -323,69 +374,40 @@ contract Ad3StakeManager is IAd3StakeManager, ReentrancyGuardUpgradeable {
         nonReentrant
     {
         bytes32 incentiveId = IncentiveId.compute(key);
-        (
-            address owner,
-            uint160 secondsPerLiquidityInsideInitialX128,
-            uint128 liquidity
-        ) = stakes(incentiveId, tokenId);
-
         Deposit storage deposit = deposits[tokenId];
         Incentive storage incentive = incentives[incentiveId];
-
         require(deposit.owner == msg.sender, "only owner can unstake token");
-        require(owner == msg.sender, "only owner can unstake token");
-        require(liquidity > 0, "stake does not exist");
 
-        (, uint160 secondsPerLiquidityInsideX128, ) = key
-        .pool
-        .snapshotCumulativesInside(deposit.tickLower, deposit.tickUpper);
-        (uint256 reward, uint160 secondsInsideX128) = RewardMath
-        .computeRewardAmount(
-            incentive.totalRewardUnclaimed,
-            incentive.totalSecondsClaimedX128,
-            key.startTime,
-            key.endTime,
-            liquidity,
-            secondsPerLiquidityInsideInitialX128,
-            secondsPerLiquidityInsideX128,
-            block.timestamp
-        );
-
+        uint256 reward;
+        uint160 secondsInsideX128;
         {
-            deposit.numberOfStakes = uint96(
-                SafeMath.sub(deposit.numberOfStakes, 1)
+            require(_stakes[incentiveId][tokenId].liquidity > 0, "stake does not exist");
+
+            (, uint160 secondsPerLiquidityInsideX128, ) = key
+            .pool
+            .snapshotCumulativesInside(deposit.tickLower, deposit.tickUpper);
+            (reward, secondsInsideX128) = RewardMath
+            .computeRewardAmount(
+                incentive.totalRewardUnclaimed,
+                incentive.totalSecondsClaimedX128,
+                key.startTime,
+                key.endTime,
+                _stakes[incentiveId][tokenId].liquidity,
+                _stakes[incentiveId][tokenId].secondsPerLiquidityInsideInitialX128,
+                secondsPerLiquidityInsideX128
             );
-            incentive.numberOfStakes = uint96(
-                SafeMath.sub(incentive.numberOfStakes, 1)
-            );
-
-            // update reward info if range in [minTick, maxTick]
-            if (deposit.tickLower >= incentive.minTick) {
-                incentive.totalSecondsClaimedX128 = uint160(
-                    SafeMath.add(
-                        incentive.totalSecondsClaimedX128,
-                        secondsInsideX128
-                    )
-                );
-                incentive.totalRewardUnclaimed = incentive.totalRewardUnclaimed.sub(
-                    reward
-                );
-                rewards[key.rewardToken][owner] = rewards[key.rewardToken][owner]
-                .add(reward);
-            }
-
-            // cleaning _stakes
-            _stakes[incentiveId][tokenId]
-            .secondsPerLiquidityInsideInitialX128 = 0;
-            _stakes[incentiveId][tokenId].liquidity = 0;
-            delete _stakes[incentiveId][tokenId];
-
-            // cleaning tokenId storages
-            _userTokenIds[msg.sender].remove(tokenId);
-            _tokenIds.remove(tokenId);
-            _withdrawToken(tokenId, to);
         }
-
+        {
+            _unstakeToken(
+                deposit,
+                incentive,
+                reward,
+                _stakes[incentiveId][tokenId].lastRewards,
+                secondsInsideX128,
+                key.rewardToken
+            );
+            _cleanStake(incentiveId, tokenId, to);
+        }
         emit TokenUnstaked(incentiveId, tokenId);
     }
 
@@ -399,7 +421,7 @@ contract Ad3StakeManager is IAd3StakeManager, ReentrancyGuardUpgradeable {
         nonfungiblePositionManager.safeTransferFrom(address(this), to, tokenId);
     }
 
-    function getRewardInfo(IncentiveKey memory key, uint256 tokenId)
+    function getAccruedRewardInfo(IncentiveKey memory key, uint256 tokenId, bool flag)
         public
         view
         override
@@ -409,7 +431,8 @@ contract Ad3StakeManager is IAd3StakeManager, ReentrancyGuardUpgradeable {
         (
             ,
             uint160 secondsPerLiquidityInsideInitialX128,
-            uint128 liquidity
+            uint128 liquidity,
+            uint256 lastRewards
         ) = stakes(incentiveId, tokenId);
 
         Incentive storage incentive = incentives[incentiveId];
@@ -426,10 +449,12 @@ contract Ad3StakeManager is IAd3StakeManager, ReentrancyGuardUpgradeable {
             key.endTime,
             liquidity,
             secondsPerLiquidityInsideInitialX128,
-            secondsPerLiquidityInsideX128,
-            block.timestamp
+            secondsPerLiquidityInsideX128
         );
         reward = deposit.tickLower < incentive.minTick ? 0 : reward;
+        if (!flag) {
+            reward = reward > 0 ? reward.sub(lastRewards) : reward;
+        }
     }
 
     function claimReward(
@@ -438,11 +463,11 @@ contract Ad3StakeManager is IAd3StakeManager, ReentrancyGuardUpgradeable {
         address to,
         uint256 amountRequested
     ) external override nonReentrant {
+        bytes32 incentiveId = IncentiveId.compute(key);
         address rewardToken = key.rewardToken;
         uint256 totalReward = rewards[rewardToken][msg.sender];
-        (uint256 reward, uint160 secondsInsideX128) = getRewardInfo(key, tokenId);
+        (uint256 reward, uint160 secondsInsideX128) = getAccruedRewardInfo(key, tokenId, false);
         if (reward >0) {
-            bytes32 incentiveId = IncentiveId.compute(key);
             Incentive storage incentive = incentives[incentiveId];
             incentive.totalSecondsClaimedX128 = uint160(
                 SafeMath.add(
@@ -458,6 +483,10 @@ contract Ad3StakeManager is IAd3StakeManager, ReentrancyGuardUpgradeable {
 
         rewards[rewardToken][msg.sender] = totalReward.sub(amountRequested);
         TransferHelper.safeTransfer(rewardToken, to, amountRequested);
+
+        Stake storage stake = _stakes[incentiveId][tokenId];
+        stake.lastRewards = stake.lastRewards.add(amountRequested);
+
         emit RewardClaimed(to, amountRequested);
     }
 }

@@ -118,16 +118,17 @@ recipient: receive AD3 address
 amountRequested: cliam amount
 
 
-### getRewardInfo
+### getAccruedRewardInfo
 
 ```
-function getRewardInfo(IncentiveKey memory key, uint256 tokenId) external view returns (uint256, uint160);
+function getAccruedRewardInfo(IncentiveKey memory key, uint256 tokenId, bool flag) external view returns (uint256, uint160);
 ```
 
-get reward infomation
+get reward information, if flag is True, get accrued reward, otherwise get reward since last claim.
 
 key: IncentiveKey
 tokenId: user tokenId
+flag: ture or false, 当flag为真，返回从stake到unstake之前的累积奖励，当为false，返回自从上次claim之后的累积奖励
 
 returns
 uint256 reward: reward amount

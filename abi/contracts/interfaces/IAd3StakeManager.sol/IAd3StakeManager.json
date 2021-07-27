@@ -397,9 +397,14 @@
         "internalType": "uint256",
         "name": "tokenId",
         "type": "uint256"
+      },
+      {
+        "internalType": "bool",
+        "name": "flag",
+        "type": "bool"
       }
     ],
-    "name": "getRewardInfo",
+    "name": "getAccruedRewardInfo",
     "outputs": [
       {
         "internalType": "uint256",
@@ -629,6 +634,11 @@
         "internalType": "uint128",
         "name": "liquidity",
         "type": "uint128"
+      },
+      {
+        "internalType": "uint256",
+        "name": "lastRewards",
+        "type": "uint256"
       }
     ],
     "stateMutability": "view",

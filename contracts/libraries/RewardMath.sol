@@ -15,10 +15,9 @@ library RewardMath {
         uint256 endTime,
         uint128 liquidity,
         uint160 secondsPerLiquidityInsideInitialX128,
-        uint160 secondsPerLiquidityInsideX128,
-        uint256 currentTime
-    ) internal pure returns (uint256 reward, uint160 secondsInsideX128) {
-        assert(currentTime >= startTime);
+        uint160 secondsPerLiquidityInsideX128
+    ) internal view returns (uint256 reward, uint160 secondsInsideX128) {
+        assert(block.timestamp >= startTime);
         assert(endTime > startTime);
         assert(endTime - startTime <= 5184000);
 
@@ -34,7 +33,7 @@ library RewardMath {
 
         uint256 totalSecondsUnclaimedX128 = SafeMath.sub(
             SafeMath.mul(
-                SafeMath.sub(Math.max(endTime, currentTime), startTime),
+                SafeMath.sub(Math.max(endTime, block.timestamp), startTime),
                 FixedPoint128.Q128
             ),
             totalSecondsClaimedX128
