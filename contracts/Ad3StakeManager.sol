@@ -312,8 +312,8 @@ contract Ad3StakeManager is IAd3StakeManager, ReentrancyGuardUpgradeable {
         _stakes[incentiveId][tokenId] = Stake({
             secondsPerLiquidityInsideInitialX128: secondsPerLiquidityInsideX128,
             liquidity: liquidity,
-            lastRewards: 0,
-            owner: from
+            owner: from,
+            lastRewards: 0
         });
         _userTokenIds[from].add(tokenId);
         _tokenIds.add(tokenId);

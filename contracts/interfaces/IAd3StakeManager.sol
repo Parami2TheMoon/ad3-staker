@@ -28,8 +28,8 @@ interface IAd3StakeManager is IERC721Receiver {
     struct Stake {
         uint160 secondsPerLiquidityInsideInitialX128;
         uint128 liquidity;
-        uint256 lastRewards;
         address owner;
+        uint256 lastRewards;
     }
 
     /// @notice Represents a staking incentive
