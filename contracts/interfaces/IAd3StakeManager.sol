@@ -35,7 +35,6 @@ interface IAd3StakeManager is IERC721Receiver {
     /// @notice Represents a staking incentive
     struct Incentive {
         uint256 totalRewardUnclaimed;
-        uint160 totalSecondsClaimedX128;
         uint96 numberOfStakes;
         int24 minTick;
         int24 maxTick;
@@ -83,7 +82,6 @@ interface IAd3StakeManager is IERC721Receiver {
     /// @notice Represents a staking incentive
     /// @param incentiveId The ID of the incentive computed from its parameters
     /// @return totalRewardUnclaimed The amount of reward token not yet claimed by users
-    /// @return totalSecondsClaimedX128 Total liquidity-seconds claimed, represented as a UQ32.128
     /// @return numberOfStakes The count of deposits that are currently staked for the incentive
     /// @return minTick The minimum tick of the range
     /// @return maxTick The maximum tick of the range
@@ -92,7 +90,6 @@ interface IAd3StakeManager is IERC721Receiver {
         view
         returns (
             uint256 totalRewardUnclaimed,
-            uint160 totalSecondsClaimedX128,
             uint96 numberOfStakes,
             int24 minTick,
             int24 maxTick
@@ -172,7 +169,11 @@ interface IAd3StakeManager is IERC721Receiver {
     /// @param key The key of the incentive for which to unstake the NFT
     /// @param tokenId The ID of the token to unstake
     /// @param to The address where the LP token will be sent
-    function unstakeToken(IncentiveKey memory key, uint256 tokenId, address to) external;
+    function unstakeToken(
+        IncentiveKey memory key,
+        uint256 tokenId,
+        address to
+    ) external;
 
     /// @notice Transfers `amountRequested` of accrued `rewardToken` rewards from the contract to the recipient `to`
     /// @param key Details of the incentive to create
@@ -191,10 +192,11 @@ interface IAd3StakeManager is IERC721Receiver {
     /// @param tokenId The ID of the token
     /// @param flag The flag get accrued reward or last reward
     /// @return reward The reward accrued to the NFT for the given incentive thus far
-    function getAccruedRewardInfo(IncentiveKey memory key, uint256 tokenId, bool flag)
-        external
-        view
-        returns (uint256, uint160);
+    function getAccruedRewardInfo(
+        IncentiveKey memory key,
+        uint256 tokenId,
+        bool flag
+    ) external view returns (uint256, uint160);
 
     /// @notice Event emitted when a liquidity mining incentive has been created
     /// @param rewardToken The token address being distributed as a reward

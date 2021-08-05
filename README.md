@@ -38,14 +38,12 @@ struct Stake {
 ```
 struct Incentive {
     uint256 totalRewardUnclaimed;
-    uint256 totalSecondsClaimedX128;
     int24 minTick;
     int24 maxTick;
 }
 ```
 
 * totalRewardUnclaimed: AD3 totalSupply for this pool
-* totalSecondsClaimedX128: Total claimed seconds
 * minTick & maxTick: Price range to tick
 
 ## Interfaces

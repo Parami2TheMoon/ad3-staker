@@ -14,7 +14,7 @@ async function main() {
     console.log(contract.address); // 0x578B692e65BC2b21ea9e615869cdE7c4582EaC96
     console.log(contract.deployTransaction.hash); // 0x47609bdbeb261379b540222843e53e641b66bac6f7f5ca586bc09dee319894d3
     await contract.deployed();
-    //await contract.setGoverance(Frontend);
+    await contract.setGoverance(Frontend);
 }
 
 main()

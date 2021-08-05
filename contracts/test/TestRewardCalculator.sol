@@ -7,7 +7,6 @@ import "../libraries/RewardMath.sol";
 contract TestRewardMath {
     function computeRewardAmount(
         uint256 totalRewardUnclaimed,
-        uint160 totalSecondsClaimedX128,
         uint256 startTime,
         uint256 endTime,
         uint128 liquidity,
@@ -16,7 +15,6 @@ contract TestRewardMath {
     ) public view returns (uint256 reward, uint160 secondsInsideX128) {
         (reward, secondsInsideX128) = RewardMath.computeRewardAmount(
             totalRewardUnclaimed,
-            totalSecondsClaimedX128,
             startTime,
             endTime,
             liquidity,
