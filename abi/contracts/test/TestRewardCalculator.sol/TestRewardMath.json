@@ -7,6 +7,11 @@
         "type": "uint256"
       },
       {
+        "internalType": "uint160",
+        "name": "totalSecondsClaimedX128",
+        "type": "uint160"
+      },
+      {
         "internalType": "uint256",
         "name": "startTime",
         "type": "uint256"
@@ -23,7 +28,7 @@
       },
       {
         "internalType": "uint160",
-        "name": "secondsPerLiquidityInsideInitialX128",
+        "name": "secondsPerLiquidityInsideAccruedX128",
         "type": "uint160"
       },
       {

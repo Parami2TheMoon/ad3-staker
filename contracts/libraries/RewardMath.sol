@@ -10,10 +10,11 @@ import "@openzeppelin/contracts/math/SafeMath.sol";
 library RewardMath {
     function computeRewardAmount(
         uint256 totalRewardUnclaimed,
+        uint160 totalSecondsClaimedX128,
         uint256 startTime,
         uint256 endTime,
         uint128 liquidity,
-        uint160 secondsPerLiquidityInsideInitialX128,
+        uint160 secondsPerLiquidityInsideAccruedX128,
         uint160 secondsPerLiquidityInsideX128
     ) internal view returns (uint256 reward, uint160 secondsInsideX128) {
         assert(block.timestamp >= startTime);
@@ -24,15 +25,18 @@ library RewardMath {
             SafeMath.mul(
                 SafeMath.sub(
                     secondsPerLiquidityInsideX128,
-                    secondsPerLiquidityInsideInitialX128
+                    secondsPerLiquidityInsideAccruedX128
                 ),
                 liquidity
             )
         );
 
-        uint256 totalSecondsUnclaimedX128 = SafeMath.mul(
-            SafeMath.sub(Math.min(endTime, block.timestamp), startTime),
-            FixedPoint128.Q128
+        uint256 totalSecondsUnclaimedX128 = SafeMath.sub(
+            SafeMath.mul(
+                SafeMath.sub(Math.max(endTime, block.timestamp), startTime),
+                FixedPoint128.Q128
+            ),
+            totalSecondsClaimedX128
         );
 
         reward = FullMath.mulDiv(

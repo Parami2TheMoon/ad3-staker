@@ -417,11 +417,6 @@
         "internalType": "uint256",
         "name": "tokenId",
         "type": "uint256"
-      },
-      {
-        "internalType": "bool",
-        "name": "flag",
-        "type": "bool"
       }
     ],
     "name": "getAccruedRewardInfo",
@@ -434,6 +429,11 @@
       {
         "internalType": "uint160",
         "name": "secondsInsideX128",
+        "type": "uint160"
+      },
+      {
+        "internalType": "uint160",
+        "name": "secondsPerLiquidityInsideX128",
         "type": "uint160"
       }
     ],
@@ -544,6 +544,11 @@
         "type": "uint256"
       },
       {
+        "internalType": "uint160",
+        "name": "totalSecondsClaimedX128",
+        "type": "uint160"
+      },
+      {
         "internalType": "uint96",
         "name": "numberOfStakes",
         "type": "uint96"
@@ -620,7 +625,7 @@
       },
       {
         "internalType": "address",
-        "name": "from",
+        "name": "operator",
         "type": "address"
       },
       {
@@ -703,19 +708,19 @@
         "type": "address"
       },
       {
-        "internalType": "uint160",
-        "name": "secondsPerLiquidityInsideInitialX128",
-        "type": "uint160"
-      },
-      {
         "internalType": "uint128",
         "name": "liquidity",
         "type": "uint128"
       },
       {
-        "internalType": "uint256",
-        "name": "lastRewards",
-        "type": "uint256"
+        "internalType": "uint160",
+        "name": "secondsPerLiquidityInsideInitialX128",
+        "type": "uint160"
+      },
+      {
+        "internalType": "uint160",
+        "name": "secondsPerLiquidityInsideAccruedX128",
+        "type": "uint160"
       }
     ],
     "stateMutability": "view",

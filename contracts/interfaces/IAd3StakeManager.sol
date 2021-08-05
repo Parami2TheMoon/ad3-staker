@@ -26,15 +26,16 @@ interface IAd3StakeManager is IERC721Receiver {
 
     /// @notice Represents a staked liquidity NFT
     struct Stake {
-        uint160 secondsPerLiquidityInsideInitialX128;
-        uint128 liquidity;
         address owner;
-        uint256 lastRewards;
+        uint128 liquidity;
+        uint160 secondsPerLiquidityInsideInitialX128;
+        uint160 secondsPerLiquidityInsideAccruedX128;
     }
 
     /// @notice Represents a staking incentive
     struct Incentive {
         uint256 totalRewardUnclaimed;
+        uint160 totalSecondsClaimedX128;
         uint96 numberOfStakes;
         int24 minTick;
         int24 maxTick;
@@ -67,21 +68,23 @@ interface IAd3StakeManager is IERC721Receiver {
     /// @param incentiveId The ID of the incentive for which the token is staked
     /// @param tokenId The ID of the staked token
     /// @return owner The owner of stake NFT
-    /// @return secondsPerLiquidityInsideInitialX128 secondsPerLiquidity represented as a UQ32.128
     /// @return liquidity The amount of liquidity in the NFT as of the last time the rewards were computed
+    /// @return secondsPerLiquidityInsideInitialX128 secondsPerLiquidity represented as a UQ32.128
+    /// @return secondsPerLiquidityInsideAccruedX128 secondsPerLiquidity represented as a UQ32.128
     function stakes(bytes32 incentiveId, uint256 tokenId)
         external
         view
         returns (
             address owner,
-            uint160 secondsPerLiquidityInsideInitialX128,
             uint128 liquidity,
-            uint256 lastRewards
+            uint160 secondsPerLiquidityInsideInitialX128,
+            uint160 secondsPerLiquidityInsideAccruedX128
         );
 
     /// @notice Represents a staking incentive
     /// @param incentiveId The ID of the incentive computed from its parameters
     /// @return totalRewardUnclaimed The amount of reward token not yet claimed by users
+    /// @return totalSecondsClaimedX128 Total liquidity-seconds claimed, represented as a UQ32.128
     /// @return numberOfStakes The count of deposits that are currently staked for the incentive
     /// @return minTick The minimum tick of the range
     /// @return maxTick The maximum tick of the range
@@ -90,6 +93,7 @@ interface IAd3StakeManager is IERC721Receiver {
         view
         returns (
             uint256 totalRewardUnclaimed,
+            uint160 totalSecondsClaimedX128,
             uint96 numberOfStakes,
             int24 minTick,
             int24 maxTick
@@ -187,16 +191,10 @@ interface IAd3StakeManager is IERC721Receiver {
         uint256 amountRequested
     ) external;
 
-    /// @notice Calculates the reward amount that will be received for the given stake
-    /// @param key The key of the incentive
-    /// @param tokenId The ID of the token
-    /// @param flag The flag get accrued reward or last reward
-    /// @return reward The reward accrued to the NFT for the given incentive thus far
     function getAccruedRewardInfo(
         IncentiveKey memory key,
-        uint256 tokenId,
-        bool flag
-    ) external view returns (uint256, uint160);
+        uint256 tokenId
+    ) external view returns (uint256, uint160, uint160);
 
     /// @notice Event emitted when a liquidity mining incentive has been created
     /// @param rewardToken The token address being distributed as a reward

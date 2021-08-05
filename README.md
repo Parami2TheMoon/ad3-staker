@@ -38,12 +38,14 @@ struct Stake {
 ```
 struct Incentive {
     uint256 totalRewardUnclaimed;
+    uint160 totalSecondsClaimedX128;
     int24 minTick;
     int24 maxTick;
 }
 ```
 
 * totalRewardUnclaimed: AD3 totalSupply for this pool
+* totalSecondsClaimedX128: AD3 total seconds when user claimed
 * minTick & maxTick: Price range to tick
 
 ## Interfaces
@@ -119,18 +121,19 @@ amountRequested: cliam amount
 ### getAccruedRewardInfo
 
 ```
-function getAccruedRewardInfo(IncentiveKey memory key, uint256 tokenId, bool flag) external view returns (uint256, uint160);
+function getAccruedRewardInfo(IncentiveKey memory key, uint256 tokenId)
+    external view returns (uint256, uint160, u160);
 ```
 
 get reward information, if flag is True, get accrued reward, otherwise get reward since last claim.
 
 key: IncentiveKey
 tokenId: user tokenId
-flag: ture or false, 当flag为真，返回从stake到unstake之前的累积奖励，当为false，返回自从上次claim之后的累积奖励
 
 returns
 uint256 reward: reward amount
 uint160 seconds stakeing
+uint160 seconds stakeing per liquidity
 
 
 ### getUserTokenCount
@@ -172,7 +175,7 @@ get tokenId with index
 
 1. getTokenCount
 2. get all tokenId
-3. getRewardInfo(key, tokenId) -> (reward, secondsInX128)
+3. getAccruedRewardInfo(key, tokenId) -> (reward, secondsInsideX128, secondsPerLiquidityInsideX128)
 4. sum all rewards -> sumRewards
 5. diffSumRewards = (afterSumRewards - beforeSumRewards), interval maybe 15min = 15 * 60 = 900seconds, or a day
 4. APY = priceOfRewardToken * diffSumReward / interval * [ day ] * [ year ] / key.totalUnClaimRewards
