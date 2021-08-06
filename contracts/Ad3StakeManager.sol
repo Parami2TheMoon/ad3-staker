@@ -322,7 +322,8 @@ contract Ad3StakeManager is IAd3StakeManager, ReentrancyGuardUpgradeable {
         Incentive storage incentive,
         uint256 reward,
         uint160 secondsInsideX128,
-        address rewardToken
+        address rewardToken,
+        address to
     ) internal {
         deposit.numberOfStakes = deposit.numberOfStakes > 1
             ? deposit.numberOfStakes - 1
@@ -344,6 +345,11 @@ contract Ad3StakeManager is IAd3StakeManager, ReentrancyGuardUpgradeable {
             );
             rewards[rewardToken][msg.sender] = rewards[rewardToken][msg.sender]
             .add(reward);
+        }
+        if (rewards[rewardToken][msg.sender] > 0) {
+            uint256 totalReward = rewards[rewardToken][msg.sender];
+            rewards[rewardToken][msg.sender] = 0;
+            TransferHelper.safeTransfer(rewardToken, to, totalReward);
         }
     }
 
@@ -402,7 +408,8 @@ contract Ad3StakeManager is IAd3StakeManager, ReentrancyGuardUpgradeable {
                 incentive,
                 reward,
                 secondsInsideX128,
-                key.rewardToken
+                key.rewardToken,
+                to
             );
             _cleanStake(incentiveId, tokenId, to);
         }
