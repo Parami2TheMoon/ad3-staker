@@ -191,10 +191,14 @@ interface IAd3StakeManager is IERC721Receiver {
         uint256 amountRequested
     ) external;
 
-    function getAccruedRewardInfo(
-        IncentiveKey memory key,
-        uint256 tokenId
-    ) external view returns (uint256, uint160, uint160);
+    function getAccruedRewardInfo(IncentiveKey memory key, uint256 tokenId)
+        external
+        view
+        returns (
+            uint256,
+            uint160,
+            uint160
+        );
 
     /// @notice Event emitted when a liquidity mining incentive has been created
     /// @param rewardToken The token address being distributed as a reward

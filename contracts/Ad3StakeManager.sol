@@ -147,7 +147,8 @@ contract Ad3StakeManager is IAd3StakeManager, ReentrancyGuardUpgradeable {
         secondsPerLiquidityInsideInitialX128 = stake
         .secondsPerLiquidityInsideInitialX128;
         liquidity = stake.liquidity;
-        secondsPerLiquidityInsideAccruedX128 = stake.secondsPerLiquidityInsideAccruedX128;
+        secondsPerLiquidityInsideAccruedX128 = stake
+        .secondsPerLiquidityInsideAccruedX128;
     }
 
     function createIncentive(
@@ -276,8 +277,7 @@ contract Ad3StakeManager is IAd3StakeManager, ReentrancyGuardUpgradeable {
         IncentiveKey memory key,
         uint256 tokenId,
         address operator
-    ) internal
-    {
+    ) internal {
         require(block.timestamp >= key.startTime, "incentive not started");
         require(block.timestamp <= key.endTime, "incentive has ended");
 
@@ -423,7 +423,11 @@ contract Ad3StakeManager is IAd3StakeManager, ReentrancyGuardUpgradeable {
         public
         view
         override
-        returns (uint256 reward, uint160 secondsInsideX128, uint160 secondsPerLiquidityInsideX128)
+        returns (
+            uint256 reward,
+            uint160 secondsInsideX128,
+            uint160 secondsPerLiquidityInsideX128
+        )
     {
         bytes32 incentiveId = IncentiveId.compute(key);
         (
@@ -436,7 +440,7 @@ contract Ad3StakeManager is IAd3StakeManager, ReentrancyGuardUpgradeable {
         Incentive storage incentive = incentives[incentiveId];
         Deposit storage deposit = deposits[tokenId];
 
-        (,secondsPerLiquidityInsideX128, ) = key
+        (, secondsPerLiquidityInsideX128, ) = key
         .pool
         .snapshotCumulativesInside(deposit.tickLower, deposit.tickUpper);
 
@@ -486,7 +490,8 @@ contract Ad3StakeManager is IAd3StakeManager, ReentrancyGuardUpgradeable {
         TransferHelper.safeTransfer(rewardToken, to, amountRequested);
 
         Stake storage stake = _stakes[incentiveId][tokenId];
-        stake.secondsPerLiquidityInsideAccruedX128 = secondsPerLiquidityInsideX128;
+        stake
+        .secondsPerLiquidityInsideAccruedX128 = secondsPerLiquidityInsideX128;
 
         emit RewardClaimed(to, amountRequested);
     }
