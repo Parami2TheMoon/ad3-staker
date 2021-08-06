@@ -460,7 +460,7 @@ contract Ad3StakeManager is IAd3StakeManager, ReentrancyGuardUpgradeable {
             secondsPerLiquidityInsideAccruedX128,
             secondsPerLiquidityInsideX128
         );
-        reward = deposit.tickLower < incentive.minTick ? 0 : reward;
+        reward = deposit.tickUpper < incentive.minTick ? 0 : reward;
     }
 
     function claimReward(
