@@ -1,0 +1,259 @@
+    1  sudo apt update
+    2  ifconfig
+    3  sudo apt install net-tools
+    4  ifconfig
+    5  sudo ufw allow 22
+    6  vim /etc/apt/sources.list
+    7  sudo vim /etc/apt/sources.list
+    8  sudo apt update
+    9  sudo dhclient -r
+   10  sudo dhclient
+   11  ifconfig
+   12  ping 10.1.0.1
+   13  ping 10.1.0.108
+   14  sudo ufw
+   15  sudo ufw stop
+   16  sudo ufw disable
+   17  sudo dhclient -r
+   18  sudo dhclient
+   19  ifconfig
+   20  sudo su
+   21  ls
+   22  vim .ssh/authorized_keys 
+   23  ls
+   24  shutdown
+   25  shutdown -c
+   26  shutdown -h now
+   27  ping szz-ubuntu
+   28  ping ubuntu
+   29  cd repos/parami-scaner/
+   30  git pull
+   31  apt install git
+   32  sudo apt install git
+   33  git clone https://github.com/parami-protocol/parami-scaner
+   34  cd parami-scaner/
+   35  ls
+   36  apt install nodejs
+   37  sudo apt install nodejs
+   38  yarn
+   39  npm install
+   40  node
+   41  sudo apt install npm
+   42  sudo apt update
+   43  sudo apt install npm
+   44  npm install
+   45  yarn
+   46  npm install yarn -g
+   47  yarn config set registry https://registry.npm.taobao.org/
+   48  npm config set registry https://registry.npm.taobao.org
+   49  npm install yarn -g
+   50  sudo npm install yarn -g
+   51  yarn
+   52  sudo apt remove nodejs
+   53  cd /tmp
+   54  wget https://npmmirror.com/mirrors/node/v14.18.1/node-v14.18.1-linux-x64.tar.xz
+   55  sudo apt-get install nodejs-legacy
+   56  sudo apt-get search nodejs
+   57  sudo apt-get list nodejs*
+   58  apt list
+   59  apt help
+   60  apt search nodejs
+   61  curl -fsSL https://deb.nodesource.com/setup_14.x | sudo -E bash -
+   62  sudo apt-get install -y nodejs
+   63  cd ~/
+   64  ls
+   65  cd repos/parami-scaner/
+   66  yarn
+   67  yarn codegen
+   68  yarn build
+   69  yarn start:docker
+   70  docker-compose pull
+   71  docker-machine start default
+   72  docker-machine regenerate-certs
+   73  docker-machine create -d “default”
+   74  sudo apt-get remove docker docker-engine docker.io containerd runc
+   75  curl -sSL https://get.daocloud.io/docker | sh
+   76  docker
+   77  docker ls
+   78  docker ps
+   79  yarn start:docker
+   80  docker-machine start default
+   81  docker-machine rm -y default && docker-machine create -d virtualbox default && eval $(docker-machine env)
+   82  docker-machine create default
+   83  sudo apt install VBoxMange
+   84  sudo docker-machine create -d virtualbox default
+   85  sudo apt-get install virtualbox
+   86  ls
+   87  cd repos/
+   88  ls
+   89  git clone https://github.com/parami-protocol/parami-defi
+   90  git clone git@github.com:parami-protocol/parami-defi.git
+   91  vim ~/.ssh/id_rsa
+   92  chmod 600 ~/.ssh/id_rsa 
+   93  git clone git@github.com:parami-protocol/parami-defi.git
+   94  cd parami-defi/
+   95  ls
+   96  yarn start
+   97  yarn
+   98  yarn start
+   99  sudo vim /etc/sysctl.conf
+  100  sudo sysctl -p
+  101  yarn start
+  102  dotenv
+  103  source .env.production 
+  104  yarn start
+  105  ls
+  106  mv .env .env.dev
+  107  mv .env.production .env.
+  108  mv .env. .env
+  109  yarn start
+  110  ifconfig
+  111  vim ~/.bashrc 
+  112  yarn add solcjs 
+  113  yarn add solc
+  114  yarn solcjs --abi \home\szz\repos\ad3-staker\contracts\Ad3StakeManager.sol
+  115  yarn solcjs --abi "\home\szz\repos\ad3-staker\contracts\Ad3StakeManager.sol"
+  116  yarn solcjs --abi ".\contracts\Ad3StakeManager.sol"
+  117  yarn solcjs --abi "./contracts/Ad3StakeManager.sol"
+  118  yarn remove solc
+  119  yarn add solc@0.7.6
+  120  yarn solcjs --abi "./contracts/Ad3StakeManager.sol"
+  121  yarn
+  122  cd contracts/
+  123  yarn solcjs --abi "./Ad3StakeManager.sol"
+  124  yarn solcjs --abi "Ad3StakeManager.sol"
+  125  yarn solcjs --abi Ad3StakeManager.sol
+  126  yarn solcjs --abi ./Ad3StakeManager.sol
+  127  ls
+  128  yarn add solc -g
+  129  solcjs --abi ./Ad3StakeManager.sol
+  130  yarn remove solc -g
+  131  yarn global add solc@0.7.6
+  132  solcjs --abi ./Ad3StakeManager.sol
+  133  which yarn
+  134  yarn global dir
+  135  cd /home/szz/.config/yarn/global
+  136  ls
+  137  cd node_modules/
+  138  ls
+  139  exit
+  140  bash
+  141  remixd
+  142  ls
+  143  yarn global bin
+  144  ls /home/szz/.yarn/bin
+  145  npm install -g @remix-project/remixd
+  146  sudo chmod -R 777 /usr/lib/node_modules
+  147  npm install -g @remix-project/remixd
+  148  ls /usr/lib/node_modules/@remix-project/remixd/bin/
+  149  ls /usr/lib/node_modules/@remix-project/remixd/
+  150  ls /usr/lib/node_modules/@remix-project/
+  151  ls /usr/lib/node_modules/
+  152  cd /usr/lib/node_modules/npm/
+  153  ls
+  154  cd bin
+  155  ls
+  156  cd ..
+  157  ls
+  158  cd node_modules/
+  159  ls
+  160  cd ..
+  161  ls
+  162  cd ..
+  163  ls
+  164  yarn compile
+  165  export INFURA_API_KEY=‘2c1781167b104bbf8766a67881984394’
+  166  export INFURA_API_KEY='2c1781167b104bbf8766a67881984394'
+  167  yarn compile
+  168  exports PRIVATE_KEY='da7e73971508743813a64e96bdd94c24574a0cd97b142ab0d24a24582ca24e68'
+  169  export PRIVATE_KEY='da7e73971508743813a64e96bdd94c24574a0cd97b142ab0d24a24582ca24e68'
+  170  yarn compile
+  171  yarn global add ts-node
+  172  yarn ts-node
+  173  yarn ts-node ./scripts/rinkeby/getAddress.ts 
+  174  ./scripts/rinkeby/verify.sh 
+  175  export ETHERSCAN_API_KEY='GYE9F2AX6IB4QV5EV9AWDVWDSXFDQ5U727'
+  176  ./scripts/rinkeby/verify.sh 
+  177  export http_proxy=http://10.1.0.108:10801;export https_proxy=http://10.1.0.108:10801;export ALL_PROXY=socks5://10.1.0.108:10800
+  178  ./scripts/rinkeby/verify.sh 
+  179  sudo apt install proxychian4
+  180  sudo apt install proxychain4
+  181  sudo apt install proxy-chain4
+  182  sudo apt search proxy-chain4
+  183  sudo apt search proxychain
+  184  sudo apt install proxychains4
+  185  sudo vim /etc/proxychains.conf
+  186  sudo vim /etc/proxychains4.conf
+  187  proxychains4 npx hardhat verify --network rinkeby 0x676f430587be833DB073a3268154B59c7F7ba6fe
+  188  sudo vim /etc/proxychains4.conf
+  189  proxychains4 npx hardhat verify --network rinkeby 0x676f430587be833DB073a3268154B59c7F7ba6fe
+  190  yarn add @remix-project/remixd
+  191  pwd
+  192  yarn remixd -s /home/szz/repos/ad3-staker -u https://remix.ethereum.org/
+  193  yarn add @remix-project/remixd
+  194  yarn remixd start -s /home/szz/repos/ad3-staker -u https://remix.ethereum.org/
+  195  npx remixd
+  196  yarn global add remixd
+  197  yarn global add @remix-project/remixd
+  198  yarn global bin
+  199  vim ~/.bashrc 
+  200  source ~/.bashrc 
+  201  remixd
+  202  ls /home/szz/.yarn/bin
+  203  vim
+  204  /bin/vim ~/.bashrc 
+  205  source ~/.bashrc
+  206  dhclient -r
+  207  declare 
+  208  dhclient
+  209  sudo dhclient --release
+  210  sudo dhclient --help
+  211  sudo dhclient -r
+  212  sudo dhclient
+  213  ifconfig
+  214  shutdown
+  215  shutdown -h now
+  216  sudo npm install -g @remix-project/remixd
+  217  sudo npx install -g @remix-project/remixd
+  218  npx remixd
+  219  mkdir ~/.npm-global
+  220  npm config set prefix '~/.npm-global'
+  221  echo 'export PATH=~/.npm-global/bin:$PATH' >> ~/.profile
+  222  source ~/.profile
+  223  vim ~/.bashrc 
+  224  sudo npm install npm --global
+  225  which npm
+  226  npm
+  227  npm install -g @remix-project/remixd
+  228  npm fund
+  229  remixd
+  230  npx remixd
+  231  npx @remix-project/remixd
+  232  npm remixd
+  233  npm run remixd
+  234  cd node_modules/@remix-project/remixd
+  235  yarn build
+  236  npm install -g tsc
+  237  npm install
+  238  npm run build
+  239  cd src/bin/
+  240  chmod +x remixd.js
+  241  ./remixd.js 
+  242  ./remixd.js -s /home/szz/repos/ad3-staker
+  243  ./remixd.js -s /home/szz/repos/ad3-staker --remix-ide https://remix.ethereum.org
+  244  cd .
+  245  zsh
+  246  cd ..
+  247  git clone git@github.com:parami-protocol/ad3-staker.git
+  248  cd ad3-staker/
+  249  ls
+  250  yarn add solc
+  251  solcjs --help
+  252  yarn solcjs --help
+  253  yarn remove solc
+  254  cd repos/parami-defi/
+  255  yarn start
+  256  htop
+  257  free
+  258  history|vim
+  259  history > history.txt

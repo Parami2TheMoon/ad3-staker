@@ -1,3 +1,9 @@
+AD3StakeMangager: https://rinkeby.etherscan.io/address/0x676f430587be833DB073a3268154B59c7F7ba6fe#code
+OldAD3StakeMangager: https://rinkeby.etherscan.io/address/0xbe754c2aeb20b35ea1705fe53dde9a2f4313cb3b#code
+TransparentUpgradeProxy: https://rinkeby.etherscan.io/address/0x18cC8771066450751b8816CEdC10E1889cFcD9c0#code
+ProxyAdmin: 
+UniswapV3FactoryAddress: https://rinkeby.etherscan.io/address/0x1F98431c8aD98523631AE4a59f267346ea31F984#code
+NonfungiblePositionManager: https://rinkeby.etherscan.io/address/0xC36442b4a4522E871399CD717aBDD847Ab11FE88#code
 # IAd3StakerManager ABI
 
 ## Structs

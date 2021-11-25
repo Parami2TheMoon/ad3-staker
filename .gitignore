@@ -7,3 +7,4 @@ typechain/
 dist/
 .openzeppelin/
 .openzeppelin/*
+yarn-error.log
