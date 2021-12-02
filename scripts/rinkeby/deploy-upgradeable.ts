@@ -2,8 +2,8 @@ import { ethers, upgrades } from "hardhat";
 
 const NFTAddress = '0xC36442b4a4522E871399CD717aBDD847Ab11FE88';
 const UniswapV3FactoryAddress = '0x1F98431c8aD98523631AE4a59f267346ea31F984';
-const Goverance = '0x5a0350846f321524d0fBe0C6A94027E89bE23bE5';
-const Frontend = '0x927fB96ae00b114825d5361B90A0D176a7DfA034'
+const Goverance = '0x5d83a7058b238Baa6E96B22669a85F7b0c270261';
+const Frontend = '0x2C71b3E0B068C4d365AdD4035Dc7f8eB6dC6C910';
 
 
 async function main() {
