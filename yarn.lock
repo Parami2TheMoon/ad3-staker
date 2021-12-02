@@ -1170,6 +1170,13 @@
     "@types/sinon-chai" "^3.2.3"
     "@types/web3" "1.0.19"
 
+"@nomiclabs/hardhat-web3@^2.0.0":
+  version "2.0.0"
+  resolved "https://registry.nlark.com/@nomiclabs/hardhat-web3/download/@nomiclabs/hardhat-web3-2.0.0.tgz#2d9850cb285a2cebe1bd718ef26a9523542e52a9"
+  integrity sha1-LZhQyyhaLOvhvXGO8mqVI1QuUqk=
+  dependencies:
+    "@types/bignumber.js" "^5.0.0"
+
 "@openzeppelin/contracts-upgradeable@3.4.1-solc-0.7-2":
   version "3.4.1-solc-0.7-2"
   resolved "https://registry.yarnpkg.com/@openzeppelin/contracts-upgradeable/-/contracts-upgradeable-3.4.1-solc-0.7-2.tgz#8d46f2310560d3756bd5235e20f4e50caa947e92"
@@ -1424,6 +1431,13 @@
   integrity sha1-ZU9sT2dWjiTCOzZ+lHCYxiBvpjk=
   dependencies:
     "@babel/types" "^7.3.0"
+
+"@types/bignumber.js@^5.0.0":
+  version "5.0.0"
+  resolved "https://registry.npm.taobao.org/@types/bignumber.js/download/@types/bignumber.js-5.0.0.tgz#d9f1a378509f3010a3255e9cc822ad0eeb4ab969"
+  integrity sha1-2fGjeFCfMBCjJV6cyCKtDutKuWk=
+  dependencies:
+    bignumber.js "*"
 
 "@types/bn.js@*", "@types/bn.js@^5.1.0":
   version "5.1.0"
@@ -2664,7 +2678,7 @@ bech32@1.1.4:
   resolved "https://registry.npm.taobao.org/bech32/download/bech32-1.1.4.tgz"
   integrity sha1-44yfN78Xm46xauOncrQMNW1IMuk=
 
-bignumber.js@^9.0.0, bignumber.js@^9.0.1:
+bignumber.js@*, bignumber.js@^9.0.0, bignumber.js@^9.0.1:
   version "9.0.1"
   resolved "https://registry.npm.taobao.org/bignumber.js/download/bignumber.js-9.0.1.tgz"
   integrity sha1-jXuhJMiCv9jkMmDGdHVRjQaJ5OU=
