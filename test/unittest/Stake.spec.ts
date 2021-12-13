@@ -232,7 +232,27 @@ describe('unittest/StakeAndWithdraw', () => {
             };
             const { reward } = await context.staker.connect(lpUser0).getAccruedRewardInfo(incentiveKeyInner, tokenId);
             expect(reward).to.eq(0);
-        })
+        });
+
+        it('decrease when others claim rewards', async() => {
+            //TODO: implement this
+        });
+
+        it('increase when no others claim rewards and time goes on', async() => {
+            //TODO: implement this
+        }),
+
+        it('getPositionInfo', async () => {
+            const stakedAfter = await context.staker.stakes(incentiveId, tokenId);
+
+            const poolKeyAddress = await context.staker.connect(lpUser0).getPoolKey('0x76B61Ae8F964F5CBE23ad9aea9BF597aa4cEA7eD', '0xc778417e063141139fce010982780140aa0cd5ab', 3000, '0x1F98431c8aD98523631AE4a59f267346ea31F984');
+
+            console.log("poolKeyAddress1 is : ", poolKeyAddress);
+
+            const poolKeyAddress2 = await context.staker.connect(lpUser0).getPoolKey('0xc778417e063141139fce010982780140aa0cd5ab', '0xb5643F5E3398fCD7608109fe9f4683fB319367E8',  3000, '0x1F98431c8aD98523631AE4a59f267346ea31F984');
+
+            console.log("poolKeyAddress2 is : " , poolKeyAddress2);
+        });
     });
 
     describe('claimReward', async () => {

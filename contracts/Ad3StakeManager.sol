@@ -131,6 +131,23 @@ contract Ad3StakeManager is IAd3StakeManager, ReentrancyGuardUpgradeable {
         return _tokenIds.at(index);
     }
 
+    function getPoolKey(
+        address token0,
+        address token1,
+        uint24 fee,
+        address factory1
+    ) pure external returns (address pool) {
+        
+        PoolAddress.PoolKey memory poolKey = PoolAddress.getPoolKey(
+            token0,
+            token1,
+            fee
+        );
+        pool = PoolAddress.computeAddress(factory1, poolKey);
+
+        return pool;
+    }
+
     function stakes(bytes32 incentiveId, uint256 tokenId)
         public
         view

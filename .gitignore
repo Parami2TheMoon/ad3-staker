@@ -7,8 +7,5 @@ typechain/
 dist/
 .openzeppelin/
 .openzeppelin/*
-<<<<<<< HEAD
 yarn-error.log
-=======
 .idea/*
->>>>>>> e7503a5 (ADD: test case for 'return 0 when incentive not exist')

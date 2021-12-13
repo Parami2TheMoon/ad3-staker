@@ -1,9 +1,7 @@
-import { ethers } from 'hardhat'
 import { expect } from 'chai';
 
 import { createFixtureLoader, provider } from "../helpers/provider";
 import {
-    BN,
     BNe18,
     ERC20Helper,
     FeeAmount,
@@ -16,15 +14,8 @@ import {
 import { createTimeMachine } from '../helpers/time';
 import {
     UniswapFixtureType,
-    UniswapFixture,
-    mintPosition
-} from "../helpers/fixtures";
+    UniswapFixture} from "../helpers/fixtures";
 import { AccountFixture } from "../helpers/accounts";
-import {
-    Ad3StakeManager,
-    TestIncentiveId,
-    TestERC20
-} from "../../typechain";
 
 type LoadFixtureFunction = ReturnType<typeof createFixtureLoader>;
 let loadFixture: LoadFixtureFunction;
